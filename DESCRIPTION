@@ -2,8 +2,12 @@ Package: oneD7
 Title: Gloo 1D7 analysis
 Version: 0.0.0.9000
 Authors@R: person("John", "Hower", email = "jhower@tangogroup.com", role = c("aut", "cre"))
-Description: Provides functions and scripts for 1D7 analysis at Gloo. Uses include identifying 1d7s, cohort retention rate data, and clustering users by their early actions.
-Depends: R (>= 3.3.1)
+Description: Provides functions and scripts for 1D7 analysis at Gloo. Uses
+    include identifying 1d7s, cohort retention rate data, and clustering users by
+    their early actions.
+Depends:
+    R (>= 3.3.1)
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 5.0.1
