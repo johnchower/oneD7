@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+**\.Rproj*
+inst/scratch_work/*
+**\.sw*
+Session.vim
