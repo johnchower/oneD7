@@ -40,13 +40,27 @@ WITH user_group AS(
 			)
 			AS total_eligible_users
 	FROM eligible_users_per_max_week
-)
-SELECT teu.max_relative_session_week
-	, teu.total_eligible_users
+), results AS(
+SELECT au.relative_session_week
+	, max(teu.total_eligible_users)
+		over(
+			ORDER BY au.relative_session_week DESC 
+			ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+		)		
+		AS total_eligible_users
 	, au.active_users
-	, au.active_users*1.0/teu.total_eligible_users AS pct_active
-FROM total_eligible_users_per_max_week teu
-left join active_users_per_week au
+	, 1.0*au.active_users/(
+		max(teu.total_eligible_users)
+		over(
+			ORDER BY au.relative_session_week DESC 
+			ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+		)		
+	) AS pct_active
+FROM active_users_per_week au
+left join total_eligible_users_per_max_week teu
 ON au.relative_session_week=teu.max_relative_session_week
 ORDER BY max_relative_session_week
+)
+SELECT * FROM results
+ORDER BY relative_session_week
 ;
