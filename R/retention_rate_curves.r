@@ -7,7 +7,7 @@
 calculateWeeklyRetention <- function(users = NULL
                                      ,con = redshift_connection$con){
   if(length(users)==1){
-    stop("'users' must be a group of at least 2 users")
+    stop("'users' must be either NULL or a group of at least 2 users")
   } else if(is.null(users)){
     userGroupQuery <- 'SELECT DISTINCT id FROM user_dimensions'
   } else {  
