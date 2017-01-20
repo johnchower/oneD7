@@ -38,4 +38,18 @@ test_that("clusterUsers returns results",{
                , expected = userSetChar[order(userSetChar)])
 })
 
+test_that("clustApply returns results.",{
+  userSet <- c(1,20, 3000, 5,99)
+  userSetChar <- as.character(userSet)
+  x <- calculatePADist(users= userSet
+                       , maxTime = 60
+                       , con = redshift_connection$con)
+  z <- clusterUsers(x)
+  w <- clustApply(z, .24, mean)
+  expect_is(w, 'list')
+  expect_equal(object = w[[1]]
+               , expected = 3100/3)
+  expect_equal(object = w[[2]]
+               , expected = 12.5)
+})
 RPostgreSQL::dbDisconnect(conn = redshift_connection$con)

@@ -3,6 +3,7 @@
 import(RPostgreSQL)
 importFrom(dplyr,mutate_)
 importFrom(dplyr,select)
+importFrom(stats,cutree)
 importFrom(stats,dist)
 importFrom(stats,hclust)
 importFrom(tidyr,gather)

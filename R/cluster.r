@@ -61,3 +61,28 @@ clusterUsers <- function(paDistData
   distMatrix <- do.call(dist, c(list(x=paDistDataWide2), distParams))
   do.call(hclust, c(list(d=distMatrix), hclustParams))
 }
+
+#' Apply a function to each cluster from an hclust object, at a given height.
+#'
+#' @param hclustObject An hclust object, the result of calling clusterUsers
+#' @param height Numeric, indicates the height at which to cut the dendogram
+#' and take groups.
+#' @param FUN A function, one of whose arguments is a set of user_ids.
+#' @param ... Additional arguments to pass to FUN
+#' @return A named list of objects, of type value(FUN), one for each cluster in
+#' hclustObject, when cut at height 'height'.
+#' @importFrom stats cutree
+clustApply <- function(hclustObject
+                       , height
+                       , FUN
+                       , ...){
+  clusters <- stats::cutree(hclustObject, h=height)
+  out <- list()
+  for(clust in unique(clusters)){
+    users <- names(clusters)[clusters==clust]
+    users <- as.numeric(users)
+    listEntry <- FUN(users, ...)
+    out[[clust]] <- listEntry
+  }
+  out
+}
