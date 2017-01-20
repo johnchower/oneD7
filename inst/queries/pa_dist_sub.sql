@@ -25,7 +25,8 @@ SELECT upd.user_id
 	, upd.platform_action
 	, upd.date_time
 	, umd.first_action
-	, extract(epoch FROM upd.date_time - umd.first_action)/60 AS relative_date_time
+	, extract(epoch FROM upd.date_time - umd.first_action)/60 
+          AS relative_date_time
 FROM user_pa_datetime upd
 left join user_min_datetime umd
 ON umd.user_id=upd.user_id
@@ -39,21 +40,37 @@ ON pfc.platform_action=urpd.platform_action
 WHERE urpd.relative_date_time<=xyz_maxTime_xyz
 AND urpd.relative_date_time>=xyz_minTime_xyz
 GROUP BY user_id, pfc.flash_report_category
+), agg_pa_count AS(
+SELECT flash_report_category
+      , sum(count_platform_actions) AS count_platform_actions
+FROM user_pa_count
+GROUP BY flash_report_category
 ), user_pa_count_total AS(
 SELECT user_id
 	, sum(count_platform_actions) AS total_platform_actions
 FROM user_pa_count upc	
 GROUP BY user_id
+), agg_pa_count_total AS(
+SELECT sum(count_platform_actions) AS total_platform_actions
+FROM agg_pa_count
 ), user_pa_pct AS(
 SELECT upc.*
 	, upct.total_platform_actions
-	, 1.0*upc.count_platform_actions/upct.total_platform_actions AS pct_platform_actions
+	, 1.0*upc.count_platform_actions/upct.total_platform_actions 
+          AS pct_platform_actions
 FROM user_pa_count upc
 left join user_pa_count_total upct
 ON upc.user_id=upct.user_id
+), agg_pa_pct AS(
+SELECT apc.*
+	, apct.total_platform_actions
+	, 1.0*apc.count_platform_actions/apct.total_platform_actions 
+          AS pct_platform_actions
+FROM agg_pa_count apc
+left join agg_pa_count_total apct
+ON TRUE
 ), results AS(
 SELECT * FROM user_pa_pct
 )
 SELECT * FROM results
-ORDER BY user_id
 ;
