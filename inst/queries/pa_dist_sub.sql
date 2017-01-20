@@ -70,7 +70,7 @@ FROM agg_pa_count apc
 left join agg_pa_count_total apct
 ON TRUE
 ), results AS(
-SELECT * FROM user_pa_pct
+xyz_resultQuery_xyz
 )
 SELECT * FROM results
 ;
