@@ -4,7 +4,7 @@
 \alias{calculatePADist}
 \title{Calculate the platform action distribution of a group of users.}
 \usage{
-calculatePADist(users = NULL, minTime = 0, maxTime = 60,
+calculatePADist(users = NULL, minTime = 0, maxTime = 60, agg = F,
   con = redshift_connection$con)
 }
 \arguments{
@@ -16,6 +16,9 @@ the users' first platform action. (Numeric, measured in minutes.)}
 \item{maxTime}{The last moment to count platform actions, relative to
 the users' first platform action. (Numeric, measured in minutes.)}
 
+\item{agg}{Logical. Should results be reported in aggregate (T) or on an
+individual basis (F).}
+
 \item{con}{Database connection to use for query.}
 }
 \value{
@@ -25,6 +28,5 @@ percentage).
 \description{
 Calculates a platform action distribution for a given group of users over a
 given time frame. Requires the existence of a pa_flash_cat temporary table.
-If no such table exists, query the
 }
 
