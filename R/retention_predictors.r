@@ -18,20 +18,22 @@ calculatePADist <- function(users = NULL
                             , maxTime = 60
                             , agg = F
                             , con = redshift_connection$con){
-  try_pa_flash_cat <- 
-    try(
-      RPostgreSQL::postgresqlExecStatement(
-        con
-        , statement = "select * from pa_flash_cat limit 10;"
-      )
-      , silent = T
-    )
+#   try_pa_flash_cat <- 
+#     try(RPostgreSQL::postgresqlExecStatement(con
+#         , statement = "select * from pa_flash_cat limit 10;")
+#         , silent = T)
+#   try_user_flash_cat <- 
+#     try(RPostgreSQL::postgresqlExecStatement(con
+#         , statement = "select * from user_flash_cat limit 10;")
+#         , silent = T)
   if(length(users)==1){
     stop("'users' must be either NULL or a group of at least 2 users")
-  } else if(is(try_pa_flash_cat)[1]!="PostgreSQLResult"){
-    stop(try_pa_flash_cat[1])
+#   } else if(is(try_pa_flash_cat)[1]!="PostgreSQLResult"){
+#     stop(try_pa_flash_cat[1])
+#   } else if(is(try_user_flash_cat)[1]!="PostgreSQLResult"){
+#     stop(try_user_flash_cat[1])
   } else if(is.null(users)){
-    userGroupQuery <- 'SELECT DISTINCT id FROM user_dimensions'
+    userGroupQuery <- 'SELECT DISTINCT user_id AS id FROM user_flash_cat'
   } else {  
     usersChar <- paste(users, collapse = ',') 
     userGroupQuery <- 
@@ -41,7 +43,8 @@ calculatePADist <- function(users = NULL
         , ')'
       )
   }
-  RPostgreSQL::postgresqlCloseResult(try_pa_flash_cat, conn = con)
+#   RPostgreSQL::postgresqlCloseResult(try_user_flash_cat, conn = con)
+#   RPostgreSQL::postgresqlCloseResult(try_pa_flash_cat, conn = con)
   distQuery <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                        , replacement = userGroupQuery
                          , x = query_pa_dist_sub)

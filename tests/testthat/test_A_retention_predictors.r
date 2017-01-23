@@ -1,14 +1,10 @@
 glootility::connect_to_redshift()
-
-test_that("calculatePADist throws error if pa_flash_cat doesn't exist",{
-  testthat::expect_error(calculatePADist(users = 1:20, maxTime = 1))
-})
-
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_pa_flash_cat)
-
+RPostgreSQL::dbGetQuery(conn = redshift_connection$con
+                        , statement = glootility::query_user_flash_cat)
 test_that("calculatePADist returns results",{
-  allUserPADist <- calculatePADist(maxTime = 1)
+  allUserPADist <- oneD7::calculatePADist(maxTime = 1)
   multiUserPADist <- calculatePADist(users = 1:20, maxTime = 1)
   aggUserPADist <- calculatePADist(maxTime=1, agg=T)
 
@@ -27,8 +23,4 @@ test_that("calculatePADist returns results",{
   testthat::expect_gt(object = nrow(aggUserPADist)
                       , expected = 0)
 })
-result_set <- RPostgreSQL::dbGetInfo(redshift_connection$con)$rsId
-lapply(result_set
-       , function(x){RPostgreSQL::dbClearResult(x)}
-)
 RPostgreSQL::dbDisconnect(conn = redshift_connection$con)
