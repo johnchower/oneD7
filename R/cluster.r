@@ -51,7 +51,7 @@ spreadPADistData <- function(paDistData){
 #' that appear in paDistDataWide
 #' @importFrom stats dist
 #' @importFrom dplyr select
-#' @importFrom stats hclust
+#' @importFrom fastcluster hclust
 clusterUsers <- function(paDistData
                          , distParams = NULL
                          , hclustParams = list(method='ward.D')){

@@ -14,7 +14,8 @@ RoxygenNote: 5.0.1
 Imports: RPostgreSQL,
     tidyr,
     stats,
-    dplyr
+    dplyr,
+    fastcluster
 Suggests: testthat,
     glootility
 Remotes: johnchower/glootility
