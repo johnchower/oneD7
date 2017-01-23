@@ -10,7 +10,7 @@ clusterUsers(paDistData, distParams = NULL, hclustParams = list(method =
 \arguments{
 \item{paDistData}{A data frame, the result of calling calculatePADist}
 
-\item{distParams}{Named list of additional parameteres to pass to dist}
+\item{distParams}{Named list of additional parameteres to pass to stats::dist}
 
 \item{hclustParams}{Named list of additional parameters to pass to hclust}
 }

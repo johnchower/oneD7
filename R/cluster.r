@@ -45,7 +45,7 @@ spreadPADistData <- function(paDistData){
 #' defaults to ward.D since that's produced the cleanest clusterings in early
 #' exploratory analyses.
 #' @param paDistData A data frame, the result of calling calculatePADist
-#' @param distParams Named list of additional parameteres to pass to dist
+#' @param distParams Named list of additional parameteres to pass to stats::dist
 #' @param hclustParams Named list of additional parameters to pass to hclust
 #' @return An object of type hclust whose labels correspond to the user ids
 #' that appear in paDistDataWide
@@ -72,6 +72,7 @@ clusterUsers <- function(paDistData
 #' @return A named list of objects, of type value(FUN), one for each cluster in
 #' hclustObject, when cut at height 'height'.
 #' @importFrom stats cutree
+#' @export
 clustApply <- function(hclustObject
                        , height
                        , FUN
