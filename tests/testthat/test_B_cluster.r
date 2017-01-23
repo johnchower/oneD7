@@ -1,14 +1,8 @@
 glootility::connect_to_redshift()
-result_set <- RPostgreSQL::dbGetInfo(redshift_connection$con)$rsId
-lapply(result_set
-       , function(x){RPostgreSQL::dbClearResult(x)}
-)
-
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_pa_flash_cat)
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_user_flash_cat)
-
 test_that("spreadPADistData returns correct columns",{
   x <- calculatePADist(users = 1:10
                        , maxTime = 1
@@ -58,8 +52,4 @@ test_that("clustApply returns results.",{
   expect_equal(object = w[[2]]
                , expected = 12.5)
 })
-result_set <- RPostgreSQL::dbGetInfo(redshift_connection$con)$rsId
-lapply(result_set
-       , function(x){RPostgreSQL::dbClearResult(x)}
-)
 RPostgreSQL::dbDisconnect(conn = redshift_connection$con)
