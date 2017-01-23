@@ -12,7 +12,8 @@ clusterUsers(paDistData, distParams = NULL, hclustParams = list(method =
 
 \item{distParams}{Named list of additional parameteres to pass to stats::dist}
 
-\item{hclustParams}{Named list of additional parameters to pass to hclust}
+\item{hclustParams}{Named list of additional parameters to pass to
+fastcluster::hclust}
 }
 \value{
 An object of type hclust whose labels correspond to the user ids

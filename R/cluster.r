@@ -46,7 +46,8 @@ spreadPADistData <- function(paDistData){
 #' exploratory analyses.
 #' @param paDistData A data frame, the result of calling calculatePADist
 #' @param distParams Named list of additional parameteres to pass to stats::dist
-#' @param hclustParams Named list of additional parameters to pass to hclust
+#' @param hclustParams Named list of additional parameters to pass to
+#' fastcluster::hclust
 #' @return An object of type hclust whose labels correspond to the user ids
 #' that appear in paDistDataWide
 #' @importFrom stats dist
