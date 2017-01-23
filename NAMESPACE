@@ -2,8 +2,12 @@
 
 export(calculatePADist)
 export(clustApply)
+export(squashPADistList)
+export(squashRetentionList)
 import(RPostgreSQL)
+importFrom(dplyr,mutate)
 importFrom(dplyr,mutate_)
+importFrom(dplyr,rename)
 importFrom(dplyr,select)
 importFrom(fastcluster,hclust)
 importFrom(stats,cutree)
