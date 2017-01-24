@@ -43,7 +43,7 @@ test_that("squashPADistList returns results",{
                         , 'Consume'
                         , 'Invite'
                         , 'Create'
-                        , NA)
+                        , 'NA')
   testthat::expect_is(object = object_to_test
                       , class = 'data.frame')
   testthat::expect_gt(object = nrow(object_to_test)

@@ -4,11 +4,17 @@
 \alias{clusterUsers}
 \title{Cluster users according to their platform action distributions.}
 \usage{
-clusterUsers(paDistData, distParams = NULL, hclustParams = list(method =
-  "ward.D"))
+clusterUsers(paDistData = NULL, extraData = NULL, clustVariables = NULL,
+  distParams = NULL, hclustParams = list(method = "ward.D"))
 }
 \arguments{
 \item{paDistData}{A data frame, the result of calling calculatePADist}
+
+\item{extraData}{A data frame of form (user_id, variable, value) containing
+data on users outside of their platform action distributions.}
+
+\item{clustVariables}{A character vector specifying which variables to
+include in the clustering routine.}
 
 \item{distParams}{Named list of additional parameteres to pass to stats::dist}
 
