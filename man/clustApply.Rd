@@ -2,7 +2,8 @@
 % Please edit documentation in R/cluster.r
 \name{clustApply}
 \alias{clustApply}
-\title{Apply a function to each cluster from an hclust object, at a given height.}
+\title{Apply a function to each cluster from an hclust object, at a given height or
+with a given number of clusters.}
 \usage{
 clustApply(hclustObject, height = NULL, num_clusters = NULL, FUN, ...)
 }
@@ -25,6 +26,7 @@ A named list of objects, of type value(FUN), one for each cluster in
 hclustObject, when cut at height 'height'.
 }
 \description{
-Apply a function to each cluster from an hclust object, at a given height.
+Apply a function to each cluster from an hclust object, at a given height or
+with a given number of clusters.
 }
 

@@ -63,7 +63,8 @@ clusterUsers <- function(paDistData
   do.call(hclust, c(list(d=distMatrix), hclustParams))
 }
 
-#' Apply a function to each cluster from an hclust object, at a given height.
+#' Apply a function to each cluster from an hclust object, at a given height or
+#' with a given number of clusters.
 #'
 #' @param hclustObject An hclust object, the result of calling clusterUsers
 #' @param height Numeric, indicates the height at which to cut the dendogram
