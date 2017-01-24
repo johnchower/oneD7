@@ -4,13 +4,17 @@
 \alias{clustApply}
 \title{Apply a function to each cluster from an hclust object, at a given height.}
 \usage{
-clustApply(hclustObject, height, FUN, ...)
+clustApply(hclustObject, height = NULL, num_clusters = NULL, FUN, ...)
 }
 \arguments{
 \item{hclustObject}{An hclust object, the result of calling clusterUsers}
 
 \item{height}{Numeric, indicates the height at which to cut the dendogram
-and take groups.}
+and take groups. Must specify either 'height' or 'num_clusters', but not
+both}
+
+\item{num_clusters}{Numeric, indicates the number of clusters to use from
+the heirarchy}
 
 \item{FUN}{A function, one of whose arguments is a set of user_ids.}
 

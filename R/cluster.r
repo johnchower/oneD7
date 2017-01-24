@@ -67,7 +67,10 @@ clusterUsers <- function(paDistData
 #'
 #' @param hclustObject An hclust object, the result of calling clusterUsers
 #' @param height Numeric, indicates the height at which to cut the dendogram
-#' and take groups.
+#' and take groups. Must specify either 'height' or 'num_clusters', but not
+#' both
+#' @param num_clusters Numeric, indicates the number of clusters to use from
+#' the heirarchy
 #' @param FUN A function, one of whose arguments is a set of user_ids.
 #' @param ... Additional arguments to pass to FUN
 #' @return A named list of objects, of type value(FUN), one for each cluster in
@@ -75,10 +78,18 @@ clusterUsers <- function(paDistData
 #' @importFrom stats cutree
 #' @export
 clustApply <- function(hclustObject
-                       , height
+                       , height = NULL
+                       , num_clusters = NULL
                        , FUN
                        , ...){
-  clusters <- stats::cutree(hclustObject, h=height)
+  if(sum(c(is.null(height), is.null(num_clusters)))!=1){
+    stop("Must specify exactly one of 'height' or 'num_clusters'")
+  }
+  clusters <- if(is.null(height) & !is.null(num_clusters)){
+    stats::cutree(hclustObject, k=num_clusters)
+  } else if(!is.null(height) & is.null(num_clusters)){
+    stats::cutree(hclustObject, h=height)
+  } 
   out <- list()
   for(clust in unique(clusters)){
     users <- names(clusters)[clusters==clust]

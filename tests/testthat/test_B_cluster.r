@@ -45,11 +45,13 @@ test_that("clustApply returns results.",{
                        , maxTime = 60
                        , con = redshift_connection$con)
   z <- clusterUsers(x)
-  w <- clustApply(z, .24, mean)
+  w <- clustApply(z, height=.24, FUN=mean)
   expect_is(w, 'list')
   expect_equal(object = w[[1]]
                , expected = 3100/3)
   expect_equal(object = w[[2]]
                , expected = 12.5)
+  expect_error(clustApply(z, FUN=mean))
+  expect_error(clustApply(z, height = .24, num_clusters = 3, FUN=mean))
 })
 RPostgreSQL::dbDisconnect(conn = redshift_connection$con)
