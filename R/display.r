@@ -33,8 +33,8 @@ squashRetentionList <- function(retentionList){
 #' the clustering process. All variables but these will be dropped, and
 #' percentages will be re-computed based on these variables only. If left null,
 #' then no variables will be dropped.
-#' @return A data frame showing each cluster's platform action distribution.
-#' aggregate platform action distribution.
+#' @return A data frame showing each cluster's aggregate platform 
+#' action distribution.
 #' @importFrom dplyr mutate
 #' @importFrom dplyr rename
 #' @importFrom dplyr filter

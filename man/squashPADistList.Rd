@@ -25,8 +25,8 @@ percentages will be re-computed based on these variables only. If left null,
 then no variables will be dropped.}
 }
 \value{
-A data frame showing each cluster's platform action distribution.
-aggregate platform action distribution.
+A data frame showing each cluster's aggregate platform 
+action distribution.
 }
 \description{
 Convert an aggPADistList to a single data frame that's ready to be
