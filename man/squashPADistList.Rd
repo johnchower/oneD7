@@ -5,7 +5,7 @@
 \title{Convert an aggPADistList to a single data frame that's ready to be
 displayed.}
 \usage{
-squashPADistList(aggPADistList)
+squashPADistList(aggPADistList, long = F, clustVariables = NULL)
 }
 \arguments{
 \item{aggPADistList}{The result of calling
@@ -15,9 +15,17 @@ clustApply(FUN = function(u){
     }
 )
 on a userClust object.}
+
+\item{long}{Logical; should data be returned in long format (T) or wide
+format (F)?}
+
+\item{clustVariables}{Character vector. Variables that were used in 
+the clustering process. All variables but these will be dropped, and
+percentages will be re-computed based on these variables only. If left null,
+then no variables will be dropped.}
 }
 \value{
-A data frame, one row for each cluster, showing that cluster's
+A data frame showing each cluster's platform action distribution.
 aggregate platform action distribution.
 }
 \description{

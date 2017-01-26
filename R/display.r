@@ -27,18 +27,46 @@ squashRetentionList <- function(retentionList){
 #'     }
 #' )
 #' on a userClust object.
-#' @return A data frame, one row for each cluster, showing that cluster's
+#' @param long Logical; should data be returned in long format (T) or wide
+#' format (F)?
+#' @param clustVariables Character vector. Variables that were used in 
+#' the clustering process. All variables but these will be dropped, and
+#' percentages will be re-computed based on these variables only. If left null,
+#' then no variables will be dropped.
+#' @return A data frame showing each cluster's platform action distribution.
 #' aggregate platform action distribution.
 #' @importFrom dplyr mutate
 #' @importFrom dplyr rename
+#' @importFrom dplyr filter
+#' @importFrom dplyr group_by
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr %>%
 #' @export
-squashPADistList <- function(aggPADistList){
+squashPADistList <- function(aggPADistList
+                             , long = F
+                             , clustVariables = NULL){
   longData <- data.frame(stringsAsFactors=F)
   for(i in 1:length(aggPADistList)){
     newDf <- dplyr::mutate(aggPADistList[[i]], user_id=i)
     longData <- rbind(longData, newDf)
   }
-  wideData <- spreadPADistData(longData)
-  dplyr::rename(wideData, cluster=user_id)
+  if(!is.null(clustVariables)){
+    longData <- longData %>% 
+      filter(flash_report_category %in% clustVariables) %>%
+      group_by(user_id) %>%
+      mutate(
+        pct_platform_actions = pct_platform_actions/sum(pct_platform_actions)
+      ) %>%
+      ungroup
+  }
+  if(long){
+    longData <- dplyr::rename(longData, cluster=user_id)
+    out <- longData
+  } else {
+    wideData <- spreadPADistData(longData)
+    wideData <- dplyr::rename(wideData, cluster=user_id)
+    out <- wideData
+  }
+  out
 }
 
