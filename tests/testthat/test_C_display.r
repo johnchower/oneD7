@@ -4,12 +4,14 @@ RPostgreSQL::dbGetQuery(conn = redshift_connection$con
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_user_flash_cat)
 
+############## Test squashRetentionList ######################
+multiUserPADist <- calculatePADist(users = 1:20, maxTime = 1)
+multiUserClust <- clusterUsers(multiUserPADist)
+retentionList <- clustApply(hclustObject=multiUserClust
+                            , height = 5
+                            , FUN = calculateWeeklyRetention)
+
 test_that("squashRetentionList returns results",{
-  multiUserPADist <- calculatePADist(users = 1:20, maxTime = 1)
-  multiUserClust <- clusterUsers(multiUserPADist)
-  retentionList <- clustApply(hclustObject=multiUserClust
-                              , height = 5
-                              , FUN = calculateWeeklyRetention)
   object_to_test <- squashRetentionList(retentionList)
   testthat::expect_is(object = object_to_test
                       , class = 'data.frame')
@@ -21,6 +23,7 @@ test_that("squashRetentionList returns results",{
                                         , 'pct_active'))
 })
 
+############## Test squashPADistList ######################
 multiUserPADist <- calculatePADist(users = 1:100, maxTime = 1)
 multiUserClust <- clusterUsers(multiUserPADist)
 aggPADistList <- clustApply(
@@ -31,20 +34,29 @@ aggPADistList <- clustApply(
                     , flash_report_category, pct_platform_actions)
     }
 )
+desired_colnames <- c('cluster'
+                      , 'Uncategorized'
+                      , 'Other actions'
+                      , 'Feed'
+                      , 'Connect'
+                      , 'Space'
+                      , 'To-do'
+                      , 'Consume'
+                      , 'Invite'
+                      , 'Create'
+                      , 'NA')
+filtered_colnames <- c('cluster'
+                      , 'Feed'
+                      , 'Connect'
+                      , 'Space'
+                      , 'To-do'
+                      , 'Consume'
+                      , 'Invite'
+                      , 'Create'
+                      , 'NA')
 
 test_that("squashPADistList returns results",{
   object_to_test <- squashPADistList(aggPADistList)
-  desired_colnames <- c('cluster'
-                        , 'Uncategorized'
-                        , 'Other actions'
-                        , 'Feed'
-                        , 'Connect'
-                        , 'Space'
-                        , 'To-do'
-                        , 'Consume'
-                        , 'Invite'
-                        , 'Create'
-                        , 'NA')
   testthat::expect_is(object = object_to_test
                       , class = 'data.frame')
   testthat::expect_gt(object = nrow(object_to_test)
@@ -54,28 +66,7 @@ test_that("squashPADistList returns results",{
     , expected = desired_colnames[order(desired_colnames)]
   )
 })
-
 test_that("squashPADistList returns filtered results",{
-  filtered_colnames <- c('cluster'
-                        , 'Feed'
-                        , 'Connect'
-                        , 'Space'
-                        , 'To-do'
-                        , 'Consume'
-                        , 'Invite'
-                        , 'Create'
-                        , 'NA')
-  desired_colnames <- c('cluster'
-                        , 'Uncategorized'
-                        , 'Other actions'
-                        , 'Feed'
-                        , 'Connect'
-                        , 'Space'
-                        , 'To-do'
-                        , 'Consume'
-                        , 'Invite'
-                        , 'Create'
-                        , 'NA')
   object_to_test <- squashPADistList(aggPADistList
                                      , clustVariables = filtered_colnames)
   testthat::expect_is(object = object_to_test

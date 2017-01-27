@@ -124,31 +124,55 @@ clusterUsers <- function(paDistData = NULL
 #' both
 #' @param num_clusters Numeric, indicates the number of clusters to use from
 #' the heirarchy
+#' @param extraGroupings data.frame of the form (user_id, var1, ... varN). The
+#' var's are categorical, and are used to split the users into smaller groups.
 #' @param FUN A function, one of whose arguments is a set of user_ids.
 #' @param ... Additional arguments to pass to FUN
 #' @return A named list of objects, of type value(FUN), one for each cluster in
 #' hclustObject, when cut at height 'height'.
 #' @importFrom stats cutree
+#' @importFrom plyr dlply
+#' @importFrom dplyr full_join
+#' @importFrom dplyr %>%
+#' @importFrom dplyr select
 #' @export
 clustApply <- function(hclustObject
                        , height = NULL
                        , num_clusters = NULL
+                       , extraGroupings = NULL
                        , FUN
                        , ...){
   if(sum(c(is.null(height), is.null(num_clusters)))!=1){
     stop("Must specify exactly one of 'height' or 'num_clusters'")
   }
-  clusters <- if(is.null(height) & !is.null(num_clusters)){
+  cluster <- if(is.null(height) & !is.null(num_clusters)){
     stats::cutree(hclustObject, k=num_clusters)
   } else if(!is.null(height) & is.null(num_clusters)){
     stats::cutree(hclustObject, h=height)
   } 
-  out <- list()
-  for(clust in unique(clusters)){
-    users <- names(clusters)[clusters==clust]
-    users <- as.numeric(users)
-    listEntry <- FUN(users, ...)
-    out[[clust]] <- listEntry
+  cluster <- as.data.frame(cluster)
+  userDf <- data.frame(user_id = as.numeric(rownames(cluster)))
+  cluster <- cbind(cluster, userDf)
+  if(!is.null(extraGroupings)){
+    totalGroupings <- 
+      dplyr::full_join(cluster, extraGroupings, by = 'user_id')
+  } else {
+    totalGroupings <- cluster
   }
-  out
+  totalGroupingsColnames <- colnames(totalGroupings)
+  resultList <- plyr::dlply(
+    .data = totalGroupings
+    , .variables = totalGroupingsColnames[totalGroupingsColnames!='user_id']
+    , .fun = function(df){
+      Result <- FUN(df$user_id, ...)
+      Combo <- df %>% {
+        dplyr::select(., -user_id)
+        } %>%
+        unique %>%
+        unlist
+      out <- list(varCombo=Combo, result=Result)
+      return(out)
+  })
+  names(resultList) <- as.character(names(resultList))
+  resultList
 }

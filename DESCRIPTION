@@ -15,6 +15,7 @@ Imports: RPostgreSQL,
     tidyr,
     stats,
     dplyr,
+    plyr,
     fastcluster
 Suggests: testthat,
     glootility

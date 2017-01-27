@@ -8,6 +8,7 @@
 #' @importFrom dplyr select
 #' @export
 squashRetentionList <- function(retentionList){
+  retentionList <- lapply(retentionList, function(x)x$result)
   out <- data.frame(stringsAsFactors=F)
   for(i in 1:length(retentionList)){
     newDf <- dplyr::mutate(retentionList[[i]], cluster=i)
@@ -45,6 +46,7 @@ squashRetentionList <- function(retentionList){
 squashPADistList <- function(aggPADistList
                              , long = F
                              , clustVariables = NULL){
+  aggPADistList <- lapply(aggPADistList, function(x)x$result)
   longData <- data.frame(stringsAsFactors=F)
   for(i in 1:length(aggPADistList)){
     newDf <- dplyr::mutate(aggPADistList[[i]], user_id=i)
