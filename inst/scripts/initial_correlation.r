@@ -1,6 +1,18 @@
+library(tidyr)
 library(ggplot2)
 library(dplyr)
 library(plotly)
+
+# Set paramaters
+K <- 2
+cluster_variables <- c('Connect'
+                        ,'Consume'
+                        ,'Create'
+                        ,'Feed'
+                        ,'Invite'
+                        ,'Other actions'
+                        ,'Space'
+                        ,'To-do')
 
 # Connect to Redshift and create temporary tables user_flash_cat and pa_flash_cat.
 glootility::connect_to_redshift()
@@ -11,16 +23,15 @@ RPostgreSQL::dbGetQuery(conn = redshift_connection$con
 # Calculate the platform action distribution for all users, in their first hour
 # on the platform.
 allUserPADist <- 
-  oneD7::calculatePADist() 
+  oneD7::calculatePADist(maxTime = 60*24) 
 
-sampleUserPADist <- allUserPADist %>%
-  slice(sample(1:nrow(.), size = 1000))
+# sampleUserPADist <- allUserPADist %>%
+#   slice(sample(1:nrow(.), size = 1000))
 
 # Cluster all users according to their hour-1 platform action distribution.
-allUserClust <- clusterUsers(allUserPADist)
-sampleUserClust <- clusterUsers(sampleUserPADist)
-
-K <- 4
+allUserClust <- clusterUsers(allUserPADist
+                             , clustVariables = cluster_variables)
+# sampleUserClust <- clusterUsers(sampleUserPADist)
 
 # Calculate aggregate platform action distributions for each cluster.
 aggPADistList <- clustApply(
@@ -33,12 +44,49 @@ aggPADistList <- clustApply(
 )
 
 # Display aggregate platform action distributions for each cluster
-.env$view(squashPADistList(aggPADistList))
+paDistDataWide <- squashPADistList(aggPADistList
+                                   , clustVariables = cluster_variables)
+
+# Plot platform action distributions as stacked bar chart
+p <- paDistDataWide %>%
+  plot_ly(
+    x = ~cluster, y = ~Connect, type = 'bar', name = 'Connect'
+    , text = ~paste0('Connect', ': ', round(100*Connect), '%')
+    , hoverinfo = 'text'
+  ) %>%
+  add_trace(y = ~Consume, name = 'Consume'
+            , text = ~paste0('Consume', ': ', round(100*Consume), '%')
+            , hoverinfo = 'text') %>%
+  add_trace(y = ~Create, name = 'Create'
+            , text = ~paste0('Create', ': ', round(100*Create), '%')
+            , hoverinfo = 'text') %>%
+  add_trace(y = ~Feed, name = 'Feed'
+            , text = ~paste0('Feed', ': ', round(100*Feed), '%')
+            , hoverinfo = 'text') %>%
+  add_trace(y = ~Invite, name = 'Invite'
+            , text = ~paste0('Invite', ': ', round(100*Invite), '%')
+            , hoverinfo = 'text') %>%
+  add_trace(y = ~`Other actions`, name = 'Other actions'
+            , text=~paste0('Other actions',': ',round(100*`Other actions`),'%')
+            , hoverinfo = 'text') %>%
+  add_trace(y = ~Space, name = 'Space'
+            , text = ~paste0('Space', ': ', round(100*Space), '%')
+            , hoverinfo = 'text') %>%
+  add_trace(y = ~`To-do`, name = 'To-do'
+            , text = ~paste0('To-do', ': ', round(100*`To-do`), '%')
+            , hoverinfo = 'text') %>%
+  layout(yaxis = list(title = ''), barmode = 'stack') 
+p
 
 # Calculate long-term retention numbers for each cluster. 
 retentionList <- clustApply(hclustObject=allUserClust
                             , num_clusters = K
                             , FUN = calculateWeeklyRetention)
+
+# Cluster size list
+clusterSizeList <- clustApply(hclustObject = allUserClust
+                              , num_clusters = K
+                              , FUN = length)
 
 # Plot long-term retention numbers for each cluster
 retentionData <- squashRetentionList(retentionList)
@@ -48,5 +96,5 @@ x <- retentionData %>%
   ggplot(aes(x=relative_session_week, y=pct_active, color = cluster, group = cluster)) +
   geom_line() 
 ggplotly(x)
-  
-RPostgreSQL::dbDisconnect(conn = redshift_connection$con)
+
+# RPostgreSQL::dbDisconnect(conn = redshift_connection$con)
