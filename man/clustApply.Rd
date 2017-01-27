@@ -5,7 +5,8 @@
 \title{Apply a function to each cluster from an hclust object, at a given height or
 with a given number of clusters.}
 \usage{
-clustApply(hclustObject, height = NULL, num_clusters = NULL, FUN, ...)
+clustApply(hclustObject, height = NULL, num_clusters = NULL,
+  extraGroupings = NULL, FUN, ...)
 }
 \arguments{
 \item{hclustObject}{An hclust object, the result of calling clusterUsers}
@@ -16,6 +17,9 @@ both}
 
 \item{num_clusters}{Numeric, indicates the number of clusters to use from
 the heirarchy}
+
+\item{extraGroupings}{data.frame of the form (user_id, var1, ... varN). The
+var's are categorical, and are used to split the users into smaller groups.}
 
 \item{FUN}{A function, one of whose arguments is a set of user_ids.}
 
