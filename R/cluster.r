@@ -74,27 +74,22 @@ clusterUsers <- function(paDistData = NULL
   paDistDataExists <- !is.null(paDistData)
   extraDataExists <- !is.null(extraData)
   clustVariablesExist <- !is.null(clustVariables)
-
   if(!extraDataExists & !paDistDataExists){
     stop("Must specify at least one of paDistData or extraData")
   }
-
   if(extraDataExists & clustVariablesExist){
     extraData <- dplyr::filter(extraData
                                 , variable %in% clustVariables)
     extraDataExists <- nrow(extraData)>0
   }
-
   if(paDistDataExists & clustVariablesExist){
     paDistData <- dplyr::filter(paDistData
                                 , flash_report_category %in% clustVariables)
     paDistDataExists <- nrow(paDistData)>0
   }
-
   if(!extraDataExists & !paDistDataExists){
     stop("Filtering on clustVariables left nothing!")
   }
-
   if(extraDataExists & paDistDataExists){
     paDistDataWide <- spreadPADistData(paDistData)
     extraDataWide <- tidyr::spread(extraData, variable, value)
@@ -108,7 +103,6 @@ clusterUsers <- function(paDistData = NULL
     paDistDataWide <- spreadPADistData(paDistData)
     clusterDataWide <- paDistDataWide
   }
-
   rownames(clusterDataWide) <- clusterDataWide$user_id
   clusterDataWide <- dplyr::select(clusterDataWide, -user_id)
   distMatrix <- do.call(dist, c(list(x=clusterDataWide), distParams))

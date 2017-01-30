@@ -2,20 +2,25 @@
 #'
 #' @param retentionList The result of calling
 #' clustApply(FUN=calculateWeeklyRetention) on a userClust object.
-#' @return A data.frame of the form  (cluster, relative_session_week,
-#' pct_active)
+#' @return A data.frame of the form  (cluster, <additional variables>
+#' , relative_session_week, pct_active). Here, <additional variables>
+#' represents the variables which appear in the extraGroupings parameter of the
+#' clustApply call.
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
+#' @importFrom plyr ldply
 #' @export
 squashRetentionList <- function(retentionList){
-  retentionList <- lapply(retentionList, function(x)x$result)
-  out <- data.frame(stringsAsFactors=F)
-  for(i in 1:length(retentionList)){
-    newDf <- dplyr::mutate(retentionList[[i]], cluster=i)
-    newDf <- dplyr::select(newDf, cluster, relative_session_week, pct_active)
-    out <- rbind(out, newDf)
-  }
-  out
+  plyr::ldply( 
+    .data = retentionList
+    , .fun = function(list){
+      userGroup <- data.frame(as.list(list$varCombo)) 
+      userGroup <- dplyr::mutate(userGroup, dummy=T)
+      retentionData <- list$result
+      retentionData <- dplyr::mutate(retentionData, dummy=T)
+      out <- dplyr::full_join(userGroup, retentionData, by = 'dummy')
+      dplyr::select(out, -dummy, -total_eligible_users, -active_users)
+  }) 
 }
 
 #' Convert an aggPADistList to a single data frame that's ready to be
@@ -71,4 +76,3 @@ squashPADistList <- function(aggPADistList
   }
   out
 }
-

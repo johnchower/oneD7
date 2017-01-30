@@ -11,8 +11,10 @@ squashRetentionList(retentionList)
 clustApply(FUN=calculateWeeklyRetention) on a userClust object.}
 }
 \value{
-A data.frame of the form  (cluster, relative_session_week,
-pct_active)
+A data.frame of the form  (cluster, <additional variables>
+, relative_session_week, pct_active). Here, <additional variables>
+represents the variables which appear in the extraGroupings parameter of the
+clustApply call.
 }
 \description{
 Convert a retentionList to a single data frame that's ready for plotting.
