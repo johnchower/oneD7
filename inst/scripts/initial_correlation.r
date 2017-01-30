@@ -4,7 +4,7 @@ library(dplyr)
 library(plotly)
 
 # Set paramaters
-K <- 2
+K <- 3
 cluster_variables <- c('Connect'
                         ,'Consume'
                         ,'Create'
@@ -14,7 +14,8 @@ cluster_variables <- c('Connect'
                         ,'Space'
                         ,'To-do')
 
-# Connect to Redshift and create temporary tables user_flash_cat and pa_flash_cat.
+# Connect to Redshift and create temporary tables user_flash_cat 
+# and pa_flash_cat.
 glootility::connect_to_redshift()
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_pa_flash_cat)
@@ -94,7 +95,8 @@ x <- retentionData %>%
   filter(relative_session_week > 0) %>%
   mutate(cluster = as.character(cluster)) %>%
   ggplot(aes(x=relative_session_week, y=pct_active, color = cluster, group = cluster)) +
-  geom_line() 
+  geom_line() +
+  ggthemes::theme_tufte()
 ggplotly(x)
 
-# RPostgreSQL::dbDisconnect(conn = redshift_connection$con)
+RPostgreSQL::dbDisconnect(conn = redshift_connection$con)

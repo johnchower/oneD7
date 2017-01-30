@@ -113,7 +113,6 @@ test_that("squashPADistList returns filtered results",{
     , expected = desired_colnames[order(desired_colnames)]
   )
 })
-
 test_that("squashPADistList returns long results",{
   object_to_test <- squashPADistList(aggPADistList
                                      , long = T)
@@ -129,5 +128,4 @@ test_that("squashPADistList returns long results",{
     , expected = desired_colnames[order(desired_colnames)]
   )
 })
-
-RPostgreSQL::dbDisconnect(conn = redshift_connection$con)
+dbDisconnect(conn = redshift_connection$con)
