@@ -1,7 +1,6 @@
 WITH user_group AS(
 	SELECT DISTINCT id 
 	FROM user_dimensions 
-	WHERE id IN (2,3,4,5,6,7,8,9)
 ), uc_seq AS (
 SELECT user_id
      , MAX(sequence_number) AS max_sequence
@@ -29,7 +28,9 @@ LEFT JOIN champion_dimensions cd
 	ON cd.id=c.champion_id
 WHERE uc_seq.min_sequence=c.sequence_number
 )
-SELECT *
+SELECT count(DISTINCT user_id)
+  , use_case
 FROM user_confounder
 WHERE user_id IN (SELECT * FROM user_group)
+GROUP BY user_confounder.use_case
 ;

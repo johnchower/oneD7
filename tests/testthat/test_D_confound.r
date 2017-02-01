@@ -28,15 +28,17 @@ test_that("getConfounders returns results on a subset",{
   object_to_test <- getConfounders(users=users_test
                                    , queryList=queryList_test)
   variable_names <- unique(object_to_test$variable)
+  expected_variable_names <- c('account_type'
+                              , 'first_name'
+                              , 'use_case')
   expect_is(object = object_to_test
             , class = 'data.frame')
   expect_gt(object = nrow(object_to_test)
                       , expected = 0)
   expect_equal(object = colnames(object_to_test)
                , expected = c('user_id', 'variable', 'value') )
-  expect_equal(object = variable_names[order(variable_names)]
-               , expected = c('account_type'
-                              , 'first_name'
-                              , 'use_case') )
+  expect_equal(
+    object = variable_names[order(variable_names)]
+    , expected =  expected_variable_names[order(expected_variable_names)]
+  )
 })
-RPostgreSQL::dbDisconnect(conn = redshift_connection$con)

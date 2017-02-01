@@ -3,5 +3,5 @@ WITH user_group AS(
 )
 SELECT id AS user_id, first_name
 FROM PUBLIC.user_dimensions
-WHERE user_id IN (SELECT * FROM user_group)
+WHERE user_id IN (SELECT DISTINCT id FROM user_group)
 ;

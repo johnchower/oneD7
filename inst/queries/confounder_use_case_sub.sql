@@ -18,8 +18,8 @@ SELECT	u.id AS user_id
         ELSE 'other'
         END
         ) AS use_case
-FROM 	user_dimensions u
-LEFT JOIN user_connected_to_champion_bridges c
+FROM 	user_connected_to_champion_bridges c
+LEFT JOIN user_dimensions u
 	ON u.id=c.user_id
 LEFT JOIN uc_seq 
 	ON uc_seq.user_id=u.id
@@ -29,5 +29,5 @@ WHERE uc_seq.min_sequence=c.sequence_number
 )
 SELECT *
 FROM user_confounder
-WHERE user_id IN (SELECT * FROM user_group)
+WHERE user_id IN (SELECT DISTINCT id FROM user_group)
 ;

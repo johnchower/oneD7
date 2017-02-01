@@ -43,10 +43,6 @@ test_that("clusterUsers returns results",{
                , expected = userSetChar[order(userSetChar)])
 })
 
-test_that("clustApply throws errors properly",{
-  expect_error(clustApply(z, FUN=mean))
-  expect_error(clustApply(z, height = .24, num_clusters = 3, FUN=mean))
-})
 
 ############### Test clustApply ###############
 w <- clustApply(z, height=.24, FUN=mean)
@@ -107,6 +103,10 @@ varCombos_expected_result_w2 <- expected_result_w2 %>%
   sapply(function(x)x$varCombo) %>%
   as.data.frame
 
+test_that("clustApply throws errors properly",{
+  expect_error(clustApply(z, FUN=mean))
+  expect_error(clustApply(z, height = .24, num_clusters = 3, FUN=mean))
+})
 test_that("clustApply returns results.",{
   expect_is(w, 'list')
 })
@@ -123,6 +123,37 @@ test_that("clustApply returns correct varCombos with extra groupings",{
                    ,order(colnames(varCombos_expected_result_w2))
                  ])
 })
+test_that("clustApply returns correct varCombos with extra groupings",{
+  # Set paramaters
+  K <- 6
+  N <- 1000 #Number of users
+  cluster_variables <- c('Connect'
+                          ,'Consume'
+                          ,'Create'
+                          ,'Feed'
+                          ,'Invite'
+                          ,'Other actions'
+                          ,'Space'
+                          ,'To-do')
+  query_list <- list(query_confounder_use_case_sub)
+  allUserPADist <- calculatePADist(maxTime = 60*24) 
+  # Select a subset of users to perform the analysis on
+  set.seed(seed = 1)
+  userSet <- sample(unique(allUserPADist$user_id), size = N, replace = F)
+  allUserPADist <- allUserPADist %>%
+    filter(user_id %in% userSet)
+  # Get values of each confounding variable for each user.
+  allUserConfounders <- getConfounders(users = userSet
+                                       , queryList = query_list)
+  allUserClust <- clusterUsers(allUserPADist
+                               , clustVariables = cluster_variables)
+  object_to_test <- clustApply(hclustObject=allUserClust
+                              , num_clusters = K
+                              , extraGroupings = allUserConfounders
+                              , FUN = calculateWeeklyRetention)
+  expect_is(object_to_test, 'list')
+})
+
 
 ############### Test clusterUsers ###############
 extraData_test <- data.frame(user_id = rep(userSet, times = 2)

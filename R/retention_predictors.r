@@ -22,7 +22,8 @@ calculatePADist <- function(users = NULL
   if(length(users)==1){
     stop("'users' must be either NULL or a group of at least 2 users")
   } else if(is.null(users)){
-    userGroupQuery <- 'SELECT DISTINCT user_id AS id FROM user_flash_cat'
+    userGroupQuery <- 
+      'SELECT DISTINCT id FROM user_dimensions WHERE email IS NOT NULL'
   } else {  
     usersChar <- paste(users, collapse = ',') 
     userGroupQuery <- 

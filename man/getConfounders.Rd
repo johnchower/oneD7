@@ -5,14 +5,18 @@
 \title{Get a data frame matching each user to the values of several confounding
 variables.}
 \usage{
-getConfounders(users = NULL, queryList, con = redshift_connection$con)
+getConfounders(users = NULL, queryList, wide = F,
+  con = redshift_connection$con)
 }
 \arguments{
 \item{users}{Numeric, a vector of user ids to include in the calculation.}
 
 \item{queryList}{A list of queries to run in the calculation. Each query
 calculates one or more confounding variables, and returns the results in a
-data.frame of the form (user_id, variable1, ... ,variableN).}
+data.frame.}
+
+\item{wide}{Should results be returned in wide format (T) or long format
+(F)?}
 
 \item{con}{The database connection to run the queryList against.}
 }
