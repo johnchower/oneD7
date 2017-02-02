@@ -5,8 +5,9 @@ library(plotly)
 devtools::load_all()
 
 # Set paramaters
-K <- 2
+K <- 6
 N <- 2000 #Number of users
+take_sample <- F # Should we cluster everyone or, just N users?
 cluster_variables <- c('Connect'
                         ,'Consume'
                         ,'Create'
@@ -30,16 +31,25 @@ allUserPADist <- oneD7::calculatePADist(maxTime = 60*24)
 
 # Select a subset of users to perform the analysis on
 set.seed(seed = 1)
+if(!take_sample){
+  N <- length(unique(allUserPADist$user_id))
+}
 userSet <- sample(unique(allUserPADist$user_id), size = N, replace = F)
 allUserPADist <- allUserPADist %>%
   filter(user_id %in% userSet)
 
 # Cluster all users according to their hour-1 platform action distribution.
-clusterStartTime <- Sys.time()
-allUserClust <- clusterUsers(allUserPADist
-                             , clustVariables = cluster_variables)
-clusterEndTime <- Sys.time()
-clusterEndTime - clusterStartTime
+
+#### Create the Dataset from scratch and save it as an .rda file ######
+# clusterStartTime <- Sys.time()
+# allUserClust <- clusterUsers(allUserPADist
+#                              , clustVariables = cluster_variables)
+# clusterEndTime <- Sys.time()
+# clusterEndTime - clusterStartTime
+# save(allUserClust, file = '/Users/johnhower/Data/allUserClust_20170201.rda')
+
+#### Load the dataset from an .rda file #####
+load(file = '/Users/johnhower/Data/allUserClust_20170201.rda')
 
 # Get values of each confounding variable for each user.
 allUserConfounders <- oneD7::getConfounders(queryList = query_list) %>%
@@ -112,9 +122,14 @@ clusterSizeList <- clustApply(hclustObject = allUserClust
                               , num_clusters = K
                               , FUN = length)
 
+# Calculate confounder-controlled long-term retention probabilities.
+retentionData2 <-  retentionData %>%
+  left_join(pConfounder, by = c('account_type', 'use_case')) %>%
+  group_by(relative_session_week, cluster) %>%
+  summarise(pct_active=sum(pct_active*probability))
+
 # Plot long-term retention numbers for each cluster
-retentionData <- squashRetentionList(retentionList)
-x <- retentionData %>%
+x <- retentionData2 %>%
   filter(relative_session_week > 0) %>%
   mutate(cluster = as.character(cluster)) %>%
   ggplot(aes(x=relative_session_week
