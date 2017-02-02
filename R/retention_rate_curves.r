@@ -12,9 +12,11 @@ calculateWeeklyRetention <- function(users = NULL
     userGroupQuery <- 'SELECT DISTINCT id FROM user_dimensions'
   } else {  
     usersChar <- paste(users, collapse = ',') 
-    userGroupQuery <- paste0('SELECT DISTINCT id FROM user_dimensions WHERE id IN ('
-                             , usersChar
-                             , ')')
+    userGroupQuery <- paste0(
+      'SELECT DISTINCT id FROM user_dimensions WHERE id IN ('
+      , usersChar
+      , ')'
+    )
   }
   retentionQuery <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                          , replacement = userGroupQuery

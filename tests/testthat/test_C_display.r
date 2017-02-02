@@ -42,8 +42,10 @@ test_that("squashRetentionList returns results",{
                          , expected = c('cluster'
                                         , 'relative_session_week'
                                         , 'pct_active'))
+  expect_gt(object = sum(!is.na(object_to_test$cluster)), 0)
+  expect_gt(object = sum(!is.na(object_to_test$relative_session_week)), 0)
+  expect_gt(object = sum(!is.na(object_to_test$pct_active)), 0)
 })
-
 test_that("squashRetentionList returns results with extra variables",{
   object_to_test <- squashRetentionList(retentionList_extraGroupings)
   testthat::expect_is(object = object_to_test
@@ -55,8 +57,79 @@ test_that("squashRetentionList returns results with extra variables",{
                                         , 'var1'
                                         , 'relative_session_week'
                                         , 'pct_active'))
+  expect_gt(object = sum(!is.na(object_to_test$cluster)), 0)
+  expect_gt(object = sum(!is.na(object_to_test$relative_session_week)), 0)
+  expect_gt(object = sum(!is.na(object_to_test$pct_active)), 0)
 })
+test_that("squashRetentionList handles null results gracefully",{
 
+  # Set paramaters
+  K <- 2
+  N <- 2000 #Number of users
+  cluster_variables <- c('Connect'
+                          ,'Consume'
+                          ,'Create'
+                          ,'Feed'
+                          ,'Invite'
+                          ,'Other actions'
+                          ,'Space'
+                          ,'To-do')
+  query_list <- list(oneD7::query_confounder_use_case_sub)
+
+  # Calculate the platform action distribution for all users
+  # , in their first hour on the platform.
+  allUserPADist <- oneD7::calculatePADist(maxTime = 60*24) 
+
+  # Select a subset of users to perform the analysis on
+  set.seed(seed = 1)
+  userSet <- allUserPADist %>%
+    filter(user_id<=100000) %>%
+    {.$user_id} %>%
+    unique %>%
+    sample(size = N, replace = F)
+  allUserPADist <- allUserPADist %>%
+    filter(user_id %in% userSet)
+
+  # Cluster all users according to their hour-1 platform action distribution.
+  clusterStartTime <- Sys.time()
+  allUserClust <- clusterUsers(allUserPADist
+                               , clustVariables = cluster_variables)
+  clusterEndTime <- Sys.time()
+  clusterEndTime - clusterStartTime
+
+  # Get values of each confounding variable for each user.
+  allUserConfounders <- getConfounders(queryList = query_list) %>%
+    filter(user_id %in% userSet)
+
+
+  # Calculate long-term retention numbers for each cluster, confounder pair. 
+  allUserConfoundersWide <- spread(allUserConfounders
+                                   , key = 'variable'
+                                   , value = 'value')
+  retentionList <- clustApply(hclustObject=allUserClust
+                              , num_clusters = K
+                              , extraGroupings = allUserConfoundersWide
+                              , FUN = calculateWeeklyRetention)
+  # Perform test
+  object_to_test <- squashRetentionList(retentionList)
+  columns <- colnames(object_to_test) 
+  expected_columns <- c('cluster'
+                         , 'relative_session_week'
+                         , 'pct_active'
+                         , 'account_type'
+                         , 'use_case')
+  testthat::expect_is(object = object_to_test
+                      , class = 'data.frame')
+  testthat::expect_gt(object = nrow(object_to_test)
+                      , expected = 0)
+  testthat::expect_equal(object = columns[order(columns)]
+                         , expected= expected_columns[order(expected_columns)])
+  expect_gt(object = sum(!is.na(object_to_test$cluster)), 0)
+  expect_gt(object = sum(!is.na(object_to_test$relative_session_week)), 0)
+  expect_gt(object = sum(!is.na(object_to_test$pct_active)), 0)
+  expect_gt(object = sum(!is.na(object_to_test$account_type)), 0)
+  expect_gt(object = sum(!is.na(object_to_test$use_case)), 0)
+})
 
 ############## Test squashPADistList ######################
 multiUserPADist <- calculatePADist(users = 1:100, maxTime = 1)

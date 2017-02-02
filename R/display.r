@@ -17,9 +17,16 @@ squashRetentionList <- function(retentionList){
       userGroup <- data.frame(as.list(list$varCombo)) 
       userGroup <- dplyr::mutate(userGroup, dummy=T)
       retentionData <- list$result
+      if(is.null(retentionData)){
+        retentionData <- data.frame()
+      }
       retentionData <- dplyr::mutate(retentionData, dummy=T)
-      out <- dplyr::full_join(userGroup, retentionData, by = 'dummy')
-      dplyr::select(out, -dummy, -total_eligible_users, -active_users)
+      out <- dplyr::left_join(retentionData, userGroup, by = 'dummy')
+      if(nrow(out)>0){
+        dplyr::select(out, relative_session_week, pct_active)
+      } else {
+        data.frame()
+      }
   }) 
 }
 

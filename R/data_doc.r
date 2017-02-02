@@ -19,3 +19,20 @@
 #'
 #' @format A length-one character vector.
 "query_pa_dist_sub"
+
+#' A string containing the query to calculate the variable 'use_case' 
+#'
+#' @format A length-one character vector.
+"query_confounder_use_case"
+
+#' A string containing the query to calculate the variable 'use_case' with a 
+#' placeholder for subsetting on users and a relative time frame.
+#'
+#' @format A length-one character vector.
+"query_confounder_use_case_sub"
+
+#' A string containing the query to calculate a users' first name, with a 
+#' placeholder for subsetting on users and a relative time frame.
+#'
+#' @format A length-one character vector.
+"query_confounder_first_name_sub"

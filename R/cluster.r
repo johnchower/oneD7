@@ -55,7 +55,7 @@ spreadPADistData <- function(paDistData){
 #' data on users outside of their platform action distributions.
 #' @param clustVariables A character vector specifying which variables to
 #' include in the clustering routine. 
-#' @param distParams Named list of additional parameteres to pass to stats::dist
+#' @param distParams Named list of additional parameters to pass to stats::dist
 #' @param hclustParams Named list of additional parameters to pass to
 #' fastcluster::hclust
 #' @return An object of type hclust whose labels correspond to the user ids
@@ -149,7 +149,7 @@ clustApply <- function(hclustObject
   cluster <- cbind(cluster, userDf)
   if(!is.null(extraGroupings)){
     totalGroupings <- 
-      dplyr::full_join(cluster, extraGroupings, by = 'user_id')
+      dplyr::left_join(cluster, extraGroupings, by = 'user_id')
   } else {
     totalGroupings <- cluster
   }
@@ -158,7 +158,11 @@ clustApply <- function(hclustObject
     .data = totalGroupings
     , .variables = totalGroupingsColnames[totalGroupingsColnames!='user_id']
     , .fun = function(df){
-      Result <- FUN(df$user_id, ...)
+      if(length(df$user_id)<=1){
+        Result <- NULL
+      } else {
+        Result <- FUN(df$user_id, ...)
+      }
       Combo <- df %>% {
         dplyr::select(., -user_id)
         } %>%

@@ -16,7 +16,7 @@ data on users outside of their platform action distributions.}
 \item{clustVariables}{A character vector specifying which variables to
 include in the clustering routine.}
 
-\item{distParams}{Named list of additional parameteres to pass to stats::dist}
+\item{distParams}{Named list of additional parameters to pass to stats::dist}
 
 \item{hclustParams}{Named list of additional parameters to pass to
 fastcluster::hclust}
