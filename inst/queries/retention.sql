@@ -14,7 +14,8 @@ WITH user_group AS(
 	GROUP BY user_id
 ), relative_session_week_by_user AS(
 	SELECT sdf.user_id
-		, floor((dd.calendar_week_start_date-fwbu.first_week)/7) AS relative_session_week
+		, floor((dd.calendar_week_start_date-fwbu.first_week)/7) 
+                  AS relative_session_week
 	FROM session_duration_fact sdf
 	left join date_dim dd
 	ON dd.id=sdf.date_id
