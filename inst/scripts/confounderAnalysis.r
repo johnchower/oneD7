@@ -4,23 +4,7 @@ library(dplyr)
 library(plotly)
 devtools::load_all()
 
-# Set paramaters
-K <- 6
-N <- 2000 #Number of users
-take_sample <- F # Should we cluster everyone or, just N users?
-cluster_variables <- c('Connect'
-                        ,'Consume'
-                        ,'Create'
-                        ,'Feed'
-                        ,'Invite'
-                        ,'Other actions'
-                        ,'Space'
-                        ,'To-do')
-query_list <- list(oneD7::query_confounder_use_case_sub
-                   , oneD7::query_confounder_oneD7_sub
-                   , oneD7::query_confounder_FL_REVEAL_sub
-                   , oneD7::query_confounder_belongs_to_cohort_sub)
-
+########### RUN ONCE #############
 # Connect to Redshift and create temporary tables user_flash_cat 
 # and pa_flash_cat.
 glootility::connect_to_redshift()
@@ -57,6 +41,24 @@ load(file = '/Users/johnhower/Data/allUserClust_20170201.rda')
 # Get values of each confounding variable for each user.
 allUserConfounders <- oneD7::getConfounders(queryList = query_list) %>%
   filter(user_id %in% userSet)
+
+
+############ SET PARAMETERS, RUN MANY TIMES ###########
+K <- 2
+N <- 2000 #Number of users
+take_sample <- F # Should we cluster everyone or, just N users?
+cluster_variables <- c('Connect'
+                        ,'Consume'
+                        ,'Create'
+                        ,'Feed'
+                        ,'Invite'
+                        ,'Other actions'
+                        ,'Space'
+                        ,'To-do')
+query_list <- list(oneD7::query_confounder_use_case_sub
+                   , oneD7::query_confounder_oneD7_sub
+                   , oneD7::query_confounder_FL_REVEAL_sub
+                   , oneD7::query_confounder_belongs_to_cohort_sub)
 
 # Calculate aggregate platform action distributions for each cluster.
 aggPADistList <- clustApply(
@@ -131,7 +133,7 @@ clusterSizeList <- clustApply(hclustObject = allUserClust
 
 # Calculate confounder-controlled long-term retention probabilities.
   # Mutate NAs to zero
-  # retentionData[is.na(retentionData)] <- 0
+  retentionData[is.na(retentionData)] <- 0
 retentionData2 <-  retentionData %>%
   left_join(pConfounder, by = c('account_type'
                                 , 'belongs_to_cohort'
