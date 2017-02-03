@@ -40,3 +40,5 @@ test_that("getConfounders returns results on a subset",{
     , expected =  expected_variable_names[order(expected_variable_names)]
   )
 })
+
+dbDisconnect(conn = redshift_connection$con)
