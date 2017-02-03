@@ -27,7 +27,7 @@ LEFT JOIN champion_dimensions cd
 	ON cd.id=c.champion_id
 WHERE uc_seq.min_sequence=c.sequence_number
 )
-SELECT *
+SELECT user_id, account_type
 FROM user_confounder
 WHERE user_id IN (SELECT DISTINCT id FROM user_group)
 ;

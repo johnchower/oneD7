@@ -116,8 +116,7 @@ test_that("squashRetentionList handles null results gracefully",{
   expected_columns <- c('cluster'
                          , 'relative_session_week'
                          , 'pct_active'
-                         , 'account_type'
-                         , 'use_case')
+                         , 'account_type')
   testthat::expect_is(object = object_to_test
                       , class = 'data.frame')
   testthat::expect_gt(object = nrow(object_to_test)
@@ -128,7 +127,6 @@ test_that("squashRetentionList handles null results gracefully",{
   expect_gt(object = sum(!is.na(object_to_test$relative_session_week)), 0)
   expect_gt(object = sum(!is.na(object_to_test$pct_active)), 0)
   expect_gt(object = sum(!is.na(object_to_test$account_type)), 0)
-  expect_gt(object = sum(!is.na(object_to_test$use_case)), 0)
 })
 
 ############## Test squashPADistList ######################
