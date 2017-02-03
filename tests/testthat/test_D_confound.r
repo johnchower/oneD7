@@ -21,16 +21,14 @@ test_that("getConfounders returns results",{
                , expected = c('user_id', 'variable', 'value') )
   expect_equal(object = variable_names[order(variable_names)]
                , expected = c('account_type'
-                              , 'first_name'
-                              , 'use_case') )
+                              , 'first_name') )
 })
 test_that("getConfounders returns results on a subset",{
   object_to_test <- getConfounders(users=users_test
                                    , queryList=queryList_test)
   variable_names <- unique(object_to_test$variable)
   expected_variable_names <- c('account_type'
-                              , 'first_name'
-                              , 'use_case')
+                              , 'first_name')
   expect_is(object = object_to_test
             , class = 'data.frame')
   expect_gt(object = nrow(object_to_test)
