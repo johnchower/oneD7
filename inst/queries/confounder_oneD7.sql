@@ -46,5 +46,6 @@ FROM user_1D7_prelim2
 SELECT *
 FROM user_1D7
 ORDER BY user_id
+limit 100
 ;
 

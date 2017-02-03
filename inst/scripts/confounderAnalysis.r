@@ -16,7 +16,10 @@ cluster_variables <- c('Connect'
                         ,'Other actions'
                         ,'Space'
                         ,'To-do')
-query_list <- list(oneD7::query_confounder_use_case_sub)
+query_list <- list(oneD7::query_confounder_use_case_sub
+                   , oneD7::query_confounder_oneD7_sub
+                   , oneD7::query_confounder_FL_REVEAL_sub
+                   , oneD7::query_confounder_belongs_to_cohort_sub)
 
 # Connect to Redshift and create temporary tables user_flash_cat 
 # and pa_flash_cat.
@@ -114,7 +117,11 @@ retentionData <- squashRetentionList(retentionList)
 # Calculate p(confounder) for each cluster
 pConfounder <- allUserConfoundersWide %>%
   mutate(total_users=length(unique(user_id))) %>%
-  group_by(use_case, account_type) %>%
+  group_by(belongs_to_cohort
+           , connected_to_fl
+           , connected_to_reveal
+           , oned7 
+           , account_type) %>%
   summarise(probability=length(unique(user_id))/mean(total_users))
 
 # Cluster size list
@@ -123,8 +130,14 @@ clusterSizeList <- clustApply(hclustObject = allUserClust
                               , FUN = length)
 
 # Calculate confounder-controlled long-term retention probabilities.
+  # Mutate NAs to zero
+  # retentionData[is.na(retentionData)] <- 0
 retentionData2 <-  retentionData %>%
-  left_join(pConfounder, by = c('account_type', 'use_case')) %>%
+  left_join(pConfounder, by = c('account_type'
+                                , 'belongs_to_cohort'
+                                , 'connected_to_fl'
+                                , 'connected_to_reveal'
+                                , 'oned7')) %>%
   group_by(relative_session_week, cluster) %>%
   summarise(pct_active=sum(pct_active*probability))
 
