@@ -17,6 +17,11 @@ avg_retention <- calculateWeeklyRetention() %>%
 
 
 retentionData2 <- rbind(CeDAR_retention, avg_retention)
+retentionDataLong <- tidyr::gather(data = retentionData2
+                                   , key = 'variable'
+                                   , value = 'value'
+                                   , -relative_session_week
+                                   , -user_group)
 
 # Plot long-term retention numbers for each cluster
 x <- retentionData2 %>%
@@ -71,6 +76,7 @@ p$x$data[[2]]$text <- gsub(pattern = '$'
 p$x$layout$hovermode <- 'compare'
 p
 
+# Save plot as html
 htmlwidgets::saveWidget(p, '/Users/johnhower/Data/CeDAR_retention_rate.html')
 
 RPostgreSQL::dbDisconnect(conn = redshift_connection$con)

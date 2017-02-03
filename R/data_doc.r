@@ -36,3 +36,26 @@
 #'
 #' @format A length-one character vector.
 "query_confounder_first_name_sub"
+
+#' A string containing the query to calculate whether a user belongs to
+#' FamilyLife or REVEAL for church.
+#' 
+#' @format A length-one character vector.
+"query_confounder_FL_REVEAL_sub"
+
+#' A string containing the query to calculate whether a user belongs to a
+#' cohort.
+#' 
+#' @format A length-one character vector.
+"query_confounder_belongs_to_cohort_sub"
+
+#' A string containing the query to calculate whether or not a user is a 1D7.
+#' 
+#' @format A length-one character vector.
+"query_confounder_oneD7_sub"
+
+#' A string containing the query to calculate the weeks (relative to signup
+#' date) that each user was active.
+#' 
+#' @format A length-one character vector.
+"query_individual_retention_sub"
