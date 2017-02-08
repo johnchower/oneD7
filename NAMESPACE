@@ -2,6 +2,7 @@
 
 export(calculatePADist)
 export(clustApply)
+export(getConfounders)
 export(squashPADistList)
 export(squashRetentionList)
 import(RPostgreSQL)

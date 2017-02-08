@@ -12,6 +12,7 @@
 #' @importFrom RPostgreSQL dbGetQuery
 #' @importFrom plyr ldply
 #' @importFrom tidyr gather
+#' @export
 getConfounders <- function(users = NULL
                            , queryList
                            , wide = F

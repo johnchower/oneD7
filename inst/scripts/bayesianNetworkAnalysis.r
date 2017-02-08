@@ -17,7 +17,6 @@ RPostgreSQL::dbGetQuery(conn = redshift_connection$con
 allUserPADist <- oneD7::calculatePADist(maxTime = 60*24) 
 
 # Select a subset of users to perform the analysis on
-N <- 2000 #Number of users
 set.seed(seed = 1)
 if(!take_sample){
   N <- length(unique(allUserPADist$user_id))
@@ -46,6 +45,7 @@ allUserConfounders <- oneD7::getConfounders(queryList = query_list) %>%
 
 ############ SET PARAMETERS, RUN MANY TIMES ###########
 K <- 2
+N <- 2000 #Number of users
 take_sample <- F # Should we cluster everyone or, just N users?
 cluster_variables <- c('Connect'
                         ,'Consume'
