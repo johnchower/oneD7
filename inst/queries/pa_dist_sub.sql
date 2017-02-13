@@ -72,5 +72,5 @@ ON TRUE
 ), results AS(
 xyz_resultQuery_xyz
 )
-SELECT * FROM results
+SELECT DISTINCT * FROM results
 ;
