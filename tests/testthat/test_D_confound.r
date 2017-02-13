@@ -41,4 +41,22 @@ test_that("getConfounders returns results on a subset",{
   )
 })
 
+queryList_test <-  list(oneD7::query_confounder_use_case_sub
+                        , oneD7::query_confounder_oneD7_sub
+                        , oneD7::query_confounder_FL_REVEAL_sub
+                        , oneD7::query_confounder_belongs_to_cohort_sub)
+test_that("getConfounders returns no nulls.",{
+  allUserConfounders <- oneD7::getConfounders(queryList = queryList_test)
+  allUserConfoundersWide <- tidyr::spread(data = allUserConfounders
+                                          , key = 'variable'
+                                          , value = 'value')
+  naLengths <- lapply(allUserConfoundersWide
+                      , FUN = function(x) sum(is.na(x)) )
+  expect_equal(naLengths$account_type, 0)
+  expect_equal(naLengths$belongs_to_cohort, 0)
+  expect_equal(naLengths$connected_to_fl, 0)
+  expect_equal(naLengths$connected_to_reveal, 0)
+  expect_equal(naLengths$oned7, 0)
+})
+
 dbDisconnect(conn = redshift_connection$con)
