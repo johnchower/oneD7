@@ -12,9 +12,13 @@ RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_pa_flash_cat)
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_user_flash_cat)
+# Set rundate
+rundate <- 20170213
+
 # Calculate the platform action distribution for all users, in their first hour
 # on the platform.
-allUserPADist <- oneD7::calculatePADist(maxTime = 60*24) 
+allUserPADist <- oneD7::calculatePADist(maxTime = 60*24
+                                        , runDate=rundate) 
 
 # Select a subset of users to perform the analysis on
 N <- 2000 #Number of users
@@ -42,10 +46,11 @@ query_list <- list(oneD7::query_confounder_use_case_sub
 # clusterEndTime - clusterStartTime
 # save(allUserClust, file = '/Users/johnhower/Data/allUserClust_20170201.rda')
 #### Load the dataset from an .rda file #####
-load(file = '/Users/johnhower/Data/allUserClust_20170213.rda')
+# load(file = '/Users/johnhower/Data/allUserClust_20170213.rda')
 
 # Get values of each confounding variable for each user.
-allUserConfounders <- oneD7::getConfounders(queryList = query_list) %>%
+allUserConfounders <- oneD7::getConfounders(queryList = query_list
+                                            , runDate = rundate) %>%
   filter(user_id %in% userSet)
 
 ############ SET PARAMETERS, RUN MANY TIMES ###########
@@ -63,7 +68,7 @@ aggPADistList <- clustApply(
   hclustObject=allUserClust
   , num_clusters = K
   , FUN = function(u){
-      dplyr::select(calculatePADist(u, agg = T)
+      dplyr::select(calculatePADist(u, agg = T, runDate = rundate)
                     , flash_report_category, pct_platform_actions)
     }
 )
@@ -110,17 +115,22 @@ allUserConfoundersWide <- spread(allUserConfounders
 retentionList <- clustApply(hclustObject=allUserClust
                             , num_clusters = K
                             , extraGroupings = allUserConfoundersWide
-                            , FUN = calculateWeeklyRetention)
+                            , FUN = function(x){
+                                calculateWeeklyRetention(x, runDate = rundate)
+                            })
 retentionData <- squashRetentionList(retentionList)
 
 # Calculate p(confounder) for each cluster
 pConfounder <- allUserConfoundersWide %>%
   mutate(total_users=length(unique(user_id))) %>%
-  group_by(belongs_to_cohort
-           # CRU MPD
-           # Think about where the compliance activity is...
-           , connected_to_fl
+  group_by(# belongs_to_cohort
+           connected_to_cfp
+           , connected_to_cru
+           , connected_to_summerconnect
+           , connected_to_tyro
+           , connected_to_cedar
            , connected_to_reveal
+           , connected_to_fl
            , oned7 
            , account_type) %>%
   summarise(probability=length(unique(user_id))/mean(total_users))
@@ -135,9 +145,13 @@ clusterSizeList <- clustApply(hclustObject = allUserClust
   retentionData[is.na(retentionData)] <- 0
 retentionData2 <-  retentionData %>%
   left_join(pConfounder, by = c('account_type'
-                                , 'belongs_to_cohort'
-                                , 'connected_to_fl'
+                                , 'connected_to_cfp'
+                                , 'connected_to_cru'
+                                , 'connected_to_summerconnect'
+                                , 'connected_to_tyro'
+                                , 'connected_to_cedar'
                                 , 'connected_to_reveal'
+                                , 'connected_to_fl'
                                 , 'oned7')) %>%
   group_by(relative_session_week, cluster) %>%
   summarise(pct_active=sum(pct_active*probability))

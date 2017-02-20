@@ -59,7 +59,8 @@ cluster_variables <- c('Connect'
 query_list <- list(oneD7::query_confounder_use_case_sub
                    , oneD7::query_confounder_oneD7_sub
                    , oneD7::query_confounder_FL_REVEAL_sub
-                   , oneD7::query_confounder_belongs_to_cohort_sub)
+                   , oneD7::query_confounder_belongs_to_cohort_sub
+                   )
 
 # Get values of each confounding variable for each user.
 allUserConfounders <- oneD7::getConfounders(queryList = query_list
