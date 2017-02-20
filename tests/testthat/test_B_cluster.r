@@ -32,11 +32,14 @@ test_that("spreadPADistData returns correct columns",{
 N <- 1000
 set.seed(1)
 userSet <- RPostgreSQL::dbGetQuery(conn = redshift_connection$con
-                                   , statement = "
-  SELECT DISTINCT id
-  FROM user_dimensions
-  where email is not null
-  ") %>%
+                                   , statement =
+      paste0("SELECT DISTINCT ud.id "
+             , "FROM user_dimensions ud "
+             , "LEFT JOIN user_platform_action_facts upaf "
+             , "on upaf.user_id=ud.id "
+             , "WHERE ud.email IS NOT NULL "
+             , "AND upaf.platform_action=\'Account Created\' ")
+  ) %>%
   {.$id} %>%
   sample(size = N)
 userSetChar <- as.character(userSet)

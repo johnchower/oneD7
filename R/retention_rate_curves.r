@@ -17,7 +17,13 @@ calculateWeeklyRetention <- function(users = NULL
     stop("'users' must be either NULL or a group of at least 2 users")
   } else if(is.null(users)){
     userGroupQuery <- 
-      'SELECT DISTINCT id FROM user_dimensions WHERE email IS NOT NULL'
+      paste0("SELECT DISTINCT ud.id "
+             , "FROM user_dimensions ud "
+             , "LEFT JOIN user_platform_action_facts upaf "
+             , "on upaf.user_id=ud.id "
+             , "WHERE ud.email IS NOT NULL "
+             , "AND upaf.platform_action=\'Account Created\' ")
+
   } else {  
     usersChar <- paste(users, collapse = ',') 
     userGroupQuery <- paste0(
@@ -26,9 +32,14 @@ calculateWeeklyRetention <- function(users = NULL
       , ')'
     )
   }
-  retentionQuery <- gsub(pattern = 'xyz_userGroupQuery_xyz'
+  runDateQuery <- paste0('SELECT id as date_id FROM date_dim where id='
+                         , rundate)
+  retentionQuery0 <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                          , replacement = userGroupQuery
                          , x = query_retention_sub)
+  retentionQuery <- gsub(pattern = 'xyz_runDateQuery_xyz'
+                         , replacement = runDateQuery
+                         , x = retentionQuery0)
   RPostgreSQL::dbGetQuery(conn = con
                           , statement = retentionQuery)
 }
@@ -52,7 +63,13 @@ calculateIndividualRetention <- function(users=NULL
     stop("'users' must be either NULL or a group of at least 2 users")
   } else if(is.null(users)){
     userGroupQuery <- 
-      'SELECT DISTINCT id FROM user_dimensions WHERE email IS NOT NULL'
+      paste0("SELECT DISTINCT ud.id "
+             , "FROM user_dimensions ud "
+             , "LEFT JOIN user_platform_action_facts upaf "
+             , "on upaf.user_id=ud.id "
+             , "WHERE ud.email IS NOT NULL "
+             , "AND upaf.platform_action=\'Account Created\' ")
+
   } else {  
     usersChar <- paste(users, collapse = ',') 
     userGroupQuery <- paste0(
@@ -61,9 +78,14 @@ calculateIndividualRetention <- function(users=NULL
       , ')'
     )
   }
-  retentionQuery <- gsub(pattern = 'xyz_userGroupQuery_xyz'
+  runDateQuery <- paste0('SELECT id as date_id FROM date_dim where id='
+                         , rundate)
+  retentionQuery0 <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                          , replacement = userGroupQuery
                          , x = query_individual_retention_sub)
+  retentionQuery <- gsub(pattern = 'xyz_runDateQuery_xyz'
+                         , replacement = runDateQuery
+                         , x = retentionQuery0)
   RPostgreSQL::dbGetQuery(conn = con
                           , statement = retentionQuery)
 }

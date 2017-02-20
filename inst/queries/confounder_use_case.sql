@@ -1,6 +1,11 @@
 WITH 
 user_group AS(
-SELECT DISTINCT id FROM user_dimensions WHERE email IS NOT NULL
+	SELECT DISTINCT ud.id 
+	FROM user_dimensions ud
+        left join public.user_platform_action_facts upaf
+        ON upaf.user_id=ud.id
+	WHERE ud.email IS NOT NULL
+        AND upaf.platform_action='Account Created'
 ), 
 run_date AS (
 SELECT id as date_id FROM date_dim where id=20170201

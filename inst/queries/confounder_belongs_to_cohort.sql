@@ -1,7 +1,10 @@
 WITH user_group AS(
-	SELECT DISTINCT id 
-	FROM user_dimensions 
-	WHERE email IS NOT NULL
+	SELECT DISTINCT ud.id 
+	FROM user_dimensions ud
+        left join public.user_platform_action_facts upaf
+        ON upaf.user_id=ud.id
+	WHERE ud.email IS NOT NULL
+        AND upaf.platform_action='Account Created'
 ), user_belongs_to_cohort_prelim AS (
 SELECT DISTINCT user_id
 	, 1 AS belongs_to_cohort

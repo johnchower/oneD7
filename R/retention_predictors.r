@@ -30,7 +30,13 @@ calculatePADist <- function(users = NULL
     stop("'users' must be either NULL or a group of at least 2 users")
   } else if(is.null(users)){
     userGroupQuery <- 
-      'SELECT DISTINCT id FROM user_dimensions WHERE email IS NOT NULL'
+      paste0("SELECT DISTINCT ud.id "
+             , "FROM user_dimensions ud "
+             , "LEFT JOIN user_platform_action_facts upaf "
+             , "on upaf.user_id=ud.id "
+             , "WHERE ud.email IS NOT NULL "
+             , "AND upaf.platform_action=\'Account Created\' ")
+
   } else {  
     usersChar <- paste(users, collapse = ',') 
     userGroupQuery <- 
