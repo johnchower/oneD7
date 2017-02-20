@@ -8,6 +8,7 @@ devtools::load_all()
 # Should we cluster everyone or, just N users?
 N <- 2000 #Number of users
 take_sample <- F
+rundate <- 20170213
 
 ########### RUN ONCE #############
 # Connect to Redshift and create temporary tables user_flash_cat 
@@ -20,7 +21,8 @@ RPostgreSQL::dbGetQuery(conn = redshift_connection$con
 
 # Calculate the platform action distribution for all users, in their first hour
 # on the platform.
-allUserPADist <- oneD7::calculatePADist(maxTime = 60*24) 
+allUserPADist <- oneD7::calculatePADist(maxTime = 60*24
+                                        , runDate = rundate) 
 
 # Select a subset of users to perform the analysis on
 set.seed(seed = 1)
@@ -45,7 +47,6 @@ allUserPADist <- allUserPADist %>%
 load(file = '/Users/johnhower/Data/allUserClust_20170213.rda')
 
 ############ SET PARAMETERS, RUN MANY TIMES ###########
-rundate <- 20170214
 K <- 2
 cluster_variables <- c('Connect'
                         ,'Consume'
@@ -61,11 +62,12 @@ query_list <- list(oneD7::query_confounder_use_case_sub
                    , oneD7::query_confounder_belongs_to_cohort_sub)
 
 # Get values of each confounding variable for each user.
-allUserConfounders <- oneD7::getConfounders(queryList = query_list) %>%
+allUserConfounders <- oneD7::getConfounders(queryList = query_list
+                                            , runDate = rundate) %>%
   filter(user_id %in% userSet)
 
 # Calculate individual retention numbers for each user.
-allUserIndividualRetention <- calculateIndividualRetention() %>%
+allUserIndividualRetention <- calculateIndividualRetention(runDate=rundate) %>%
   filter(user_id %in% userSet) %>%
   mutate(active = ifelse(is.na(active), 0 ,1))
 

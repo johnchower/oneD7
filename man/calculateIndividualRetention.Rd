@@ -4,14 +4,14 @@
 \alias{calculateIndividualRetention}
 \title{Calculate weekly retention numbers for individual users.}
 \usage{
-calculateIndividualRetention(users = NULL, rundate = as.numeric(gsub(pattern
+calculateIndividualRetention(users = NULL, runDate = as.numeric(gsub(pattern
   = "-", replacement = "", x = Sys.Date())), con = redshift_connection$con)
 }
 \arguments{
 \item{users}{A numeric vector of user ids.}
 
-\item{rundate}{A dateid of the form yyyymmdd (numeric). All dates after the
-rundate will be filtered out.}
+\item{runDate}{A dateid of the form yyyymmdd (numeric). All dates after the
+runDate will be filtered out.}
 
 \item{con}{Database connection to use for query.}
 }

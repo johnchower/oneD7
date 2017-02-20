@@ -1,7 +1,7 @@
 glootility::connect_to_redshift()
 
 test_that("calculateWeeklyRetention returns results",{
-  allUserRetention <- calculateWeeklyRetention(rundate=20170201)
+  allUserRetention <- calculateWeeklyRetention(runDate=20170201)
   multiUserRetention <- calculateWeeklyRetention(users = 1:20)
 
   testthat::expect_is(object = allUserRetention
@@ -18,7 +18,7 @@ test_that("calculateWeeklyRetention returns results",{
 })
 
 test_that("calculateIndividualRetention returns results",{
-  allUserRetention <- calculateIndividualRetention(rundate=20170201)
+  allUserRetention <- calculateIndividualRetention(runDate=20170201)
   allUserColnames <- colnames(allUserRetention)
   multiUserRetention <- calculateIndividualRetention(users = 1:20)
   multiUserColnames <- colnames(multiUserRetention)

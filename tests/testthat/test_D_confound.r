@@ -12,7 +12,7 @@ queryList_test <-  list(oneD7::query_confounder_use_case_sub
 test_that("getConfounders returns results",{
   object_to_test <- getConfounders(users=NULL
                                    , queryList=queryList_test
-                                   , rundate = 20170201)
+                                   , runDate = 20170201)
   variable_names <- unique(object_to_test$variable)
   expect_is(object = object_to_test
             , class = 'data.frame')
@@ -27,7 +27,7 @@ test_that("getConfounders returns results",{
 test_that("getConfounders returns results on a subset",{
   object_to_test <- getConfounders(users=users_test
                                    , queryList=queryList_test
-                                   , rundate = 20170201)
+                                   , runDate = 20170201)
   variable_names <- unique(object_to_test$variable)
   expected_variable_names <- c('account_type'
                               , 'first_name')
@@ -49,7 +49,7 @@ queryList_test <-  list(oneD7::query_confounder_use_case_sub
                         , oneD7::query_confounder_belongs_to_cohort_sub)
 test_that("getConfounders returns no nulls.",{
   allUserConfounders <- oneD7::getConfounders(queryList = queryList_test
-                                   , rundate = 20170201)
+                                   , runDate = 20170201)
   allUserConfoundersWide <- tidyr::spread(data = allUserConfounders
                                           , key = 'variable'
                                           , value = 'value')

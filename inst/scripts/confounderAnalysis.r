@@ -30,7 +30,8 @@ allUserPADist <- allUserPADist %>%
 query_list <- list(oneD7::query_confounder_use_case_sub
                    , oneD7::query_confounder_oneD7_sub
                    , oneD7::query_confounder_FL_REVEAL_sub
-                   , oneD7::query_confounder_belongs_to_cohort_sub)
+                   # , oneD7::query_confounder_belongs_to_cohort_sub
+                   )
 
 # Cluster all users according to their hour-1 platform action distribution.
 #### Create the Dataset from scratch and save it as an .rda file ######

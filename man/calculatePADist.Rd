@@ -5,7 +5,7 @@
 \title{Calculate the platform action distribution of a group of users.}
 \usage{
 calculatePADist(users = NULL, minTime = 0, maxTime = 60, agg = F,
-  rundate = as.numeric(gsub(pattern = "-", replacement = "", x = Sys.Date())),
+  runDate = as.numeric(gsub(pattern = "-", replacement = "", x = Sys.Date())),
   con = redshift_connection$con)
 }
 \arguments{
@@ -20,8 +20,8 @@ the users' first platform action. (Numeric, measured in minutes.)}
 \item{agg}{Logical. Should results be reported in aggregate (T) or on an
 individual basis (F).}
 
-\item{rundate}{A dateid of the form yyyymmdd (numeric). All dates after the
-rundate will be filtered out.}
+\item{runDate}{A dateid of the form yyyymmdd (numeric). All dates after the
+runDate will be filtered out.}
 
 \item{con}{Database connection to use for query.}
 }

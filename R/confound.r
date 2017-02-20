@@ -7,8 +7,8 @@
 #' data.frame. 
 #' @param wide Should results be returned in wide format (T) or long format
 #' (F)?
-#' @param rundate A dateid of the form yyyymmdd (numeric). All dates after the
-#' rundate will be filtered out.
+#' @param runDate A dateid of the form yyyymmdd (numeric). All dates after the
+#' runDate will be filtered out.
 #' @param con The database connection to run the queryList against.
 #' @return A data.frame of the form (user_id, variable, value). 
 #' @importFrom RPostgreSQL dbGetQuery
@@ -18,7 +18,7 @@
 getConfounders <- function(users = NULL
                            , queryList
                            , wide = F
-                           , rundate = as.numeric(
+                           , runDate = as.numeric(
                                          gsub(pattern = "-" 
                                               , replacement = "" 
                                               , x = Sys.Date())
@@ -44,7 +44,7 @@ getConfounders <- function(users = NULL
       )
   }
   runDateQuery <- paste0('SELECT id as date_id FROM date_dim where id='
-                         , rundate)
+                         , runDate)
   resultList <- 
     lapply(X = queryList
            , FUN = function(query){

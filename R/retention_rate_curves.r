@@ -1,13 +1,13 @@
 #' Calculate the weekly retention rate curve given a group of users.
 #'
 #' @param users A numeric vector of user ids.
-#' @param rundate A dateid of the form yyyymmdd (numeric). All dates after the
-#' rundate will be filtered out.
+#' @param runDate A dateid of the form yyyymmdd (numeric). All dates after the
+#' runDate will be filtered out.
 #' @param con Database connection to use for query.
 #' @return A data frame of the form (weekBeginning, pctActive)
 #' @import RPostgreSQL
 calculateWeeklyRetention <- function(users = NULL
-                                     , rundate = as.numeric(
+                                     , runDate = as.numeric(
                                                    gsub(pattern = "-" 
                                                         , replacement = "" 
                                                         , x = Sys.Date())
@@ -33,7 +33,7 @@ calculateWeeklyRetention <- function(users = NULL
     )
   }
   runDateQuery <- paste0('SELECT id as date_id FROM date_dim where id='
-                         , rundate)
+                         , runDate)
   retentionQuery0 <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                          , replacement = userGroupQuery
                          , x = query_retention_sub)
@@ -47,13 +47,13 @@ calculateWeeklyRetention <- function(users = NULL
 #' Calculate weekly retention numbers for individual users.
 #' 
 #' @param users A numeric vector of user ids.
-#' @param rundate A dateid of the form yyyymmdd (numeric). All dates after the
-#' rundate will be filtered out.
+#' @param runDate A dateid of the form yyyymmdd (numeric). All dates after the
+#' runDate will be filtered out.
 #' @param con Database connection to use for query.
 #' @return A data frame of the form (user_id, week, showed_up)
 #' @import RPostgreSQL
 calculateIndividualRetention <- function(users=NULL
-                                         , rundate = as.numeric(
+                                         , runDate = as.numeric(
                                                        gsub(pattern = "-" 
                                                             , replacement = "" 
                                                             , x = Sys.Date())
@@ -79,7 +79,7 @@ calculateIndividualRetention <- function(users=NULL
     )
   }
   runDateQuery <- paste0('SELECT id as date_id FROM date_dim where id='
-                         , rundate)
+                         , runDate)
   retentionQuery0 <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                          , replacement = userGroupQuery
                          , x = query_individual_retention_sub)

@@ -6,7 +6,7 @@ RPostgreSQL::dbGetQuery(conn = redshift_connection$con
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_user_flash_cat)
 test_that("calculatePADist returns results",{
-  allUserPADist <- oneD7::calculatePADist(maxTime = 1, rundate=20170201)
+  allUserPADist <- oneD7::calculatePADist(maxTime = 1, runDate=20170201)
   multiUserPADist <- calculatePADist(users = 1:20, maxTime = 1)
   aggUserPADist <- calculatePADist(maxTime=1, agg=T)
 
