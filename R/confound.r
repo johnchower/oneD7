@@ -7,6 +7,8 @@
 #' data.frame. 
 #' @param wide Should results be returned in wide format (T) or long format
 #' (F)?
+#' @param rundate A dateid of the form yyyymmdd (numeric). All dates after the
+#' rundate will be filtered out.
 #' @param con The database connection to run the queryList against.
 #' @return A data.frame of the form (user_id, variable, value). 
 #' @importFrom RPostgreSQL dbGetQuery
@@ -16,6 +18,11 @@
 getConfounders <- function(users = NULL
                            , queryList
                            , wide = F
+                           , rundate = as.numeric(
+                                         gsub(pattern = "-" 
+                                              , replacement = "" 
+                                              , x = Sys.Date())
+                                       )
                            , con = redshift_connection$con){
   if(length(users)==1){
     stop("'users' must be either NULL or a group of at least 2 users")
@@ -31,12 +38,17 @@ getConfounders <- function(users = NULL
         , ')'
       )
   }
+  runDateQuery <- paste0('SELECT id as date_id FROM date_dim where id='
+                         , rundate)
   resultList <- 
     lapply(X = queryList
            , FUN = function(query){
-             queryToRun <- gsub(pattern = 'xyz_userGroupQuery_xyz'
+             queryToRun0 <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                                 , replacement = userGroupQuery
                                 , x = query)
+             queryToRun <- gsub(pattern = 'xyz_runDateQuery_xyz'
+                                , replacement = runDateQuery
+                                , x = queryToRun0)
              resultsWide <- RPostgreSQL::dbGetQuery(conn = con
                                      , statement = queryToRun)
              tidyr::gather(resultsWide

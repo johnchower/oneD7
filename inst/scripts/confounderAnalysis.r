@@ -19,15 +19,20 @@ allUserPADist <- oneD7::calculatePADist(maxTime = 60*24)
 # Select a subset of users to perform the analysis on
 N <- 2000 #Number of users
 set.seed(seed = 1)
+take_sample <- F # Should we cluster everyone or, just N users?
 if(!take_sample){
   N <- length(unique(allUserPADist$user_id))
 }
 userSet <- sample(unique(allUserPADist$user_id), size = N, replace = F)
 allUserPADist <- allUserPADist %>%
   filter(user_id %in% userSet)
+# Define which confounders will be controlled for
+query_list <- list(oneD7::query_confounder_use_case_sub
+                   , oneD7::query_confounder_oneD7_sub
+                   , oneD7::query_confounder_FL_REVEAL_sub
+                   , oneD7::query_confounder_belongs_to_cohort_sub)
 
 # Cluster all users according to their hour-1 platform action distribution.
-
 #### Create the Dataset from scratch and save it as an .rda file ######
 # clusterStartTime <- Sys.time()
 # allUserClust <- clusterUsers(allUserPADist
@@ -35,18 +40,15 @@ allUserPADist <- allUserPADist %>%
 # clusterEndTime <- Sys.time()
 # clusterEndTime - clusterStartTime
 # save(allUserClust, file = '/Users/johnhower/Data/allUserClust_20170201.rda')
-
 #### Load the dataset from an .rda file #####
-load(file = '/Users/johnhower/Data/allUserClust_20170201.rda')
+load(file = '/Users/johnhower/Data/allUserClust_20170213.rda')
 
 # Get values of each confounding variable for each user.
 allUserConfounders <- oneD7::getConfounders(queryList = query_list) %>%
   filter(user_id %in% userSet)
 
-
 ############ SET PARAMETERS, RUN MANY TIMES ###########
-K <- 2
-take_sample <- F # Should we cluster everyone or, just N users?
+K <- 6
 cluster_variables <- c('Connect'
                         ,'Consume'
                         ,'Create'
@@ -55,11 +57,6 @@ cluster_variables <- c('Connect'
                         ,'Other actions'
                         ,'Space'
                         ,'To-do')
-query_list <- list(oneD7::query_confounder_use_case_sub
-                   , oneD7::query_confounder_oneD7_sub
-                   , oneD7::query_confounder_FL_REVEAL_sub
-                   , oneD7::query_confounder_belongs_to_cohort_sub)
-
 # Calculate aggregate platform action distributions for each cluster.
 aggPADistList <- clustApply(
   hclustObject=allUserClust
@@ -113,13 +110,14 @@ retentionList <- clustApply(hclustObject=allUserClust
                             , num_clusters = K
                             , extraGroupings = allUserConfoundersWide
                             , FUN = calculateWeeklyRetention)
-
 retentionData <- squashRetentionList(retentionList)
 
 # Calculate p(confounder) for each cluster
 pConfounder <- allUserConfoundersWide %>%
   mutate(total_users=length(unique(user_id))) %>%
   group_by(belongs_to_cohort
+           # CRU MPD
+           # Think about where the compliance activity is...
            , connected_to_fl
            , connected_to_reveal
            , oned7 

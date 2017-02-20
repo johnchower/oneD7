@@ -1,10 +1,23 @@
-WITH user_group AS (
+WITH 
+user_group AS(
   xyz_userGroupQuery_xyz
-), uc_seq AS (
+), 
+run_date AS (
+  xyz_runDateQuery_xyz
+),
+users_existing AS (
+SELECT DISTINCT ug.id
+FROM user_group ug
+left join public.user_platform_action_facts upaf
+ON upaf.user_id=ug.id
+WHERE upaf.platform_action='Account Created'
+AND upaf.date_id <= (SELECT date_id FROM run_date)
+),
+uc_seq AS (
 SELECT user_id
 	, champion_id
 FROM user_connected_to_champion_bridges
-WHERE user_id IN (SELECT DISTINCT id FROM user_group)
+WHERE user_id IN (SELECT DISTINCT id FROM users_existing)
 AND sequence_number <= 2
 ), user_connected_to_FL_REVEAL_prelim AS (
 SELECT ug.id AS user_id
@@ -18,7 +31,7 @@ end AS connected_to_FL
 		THEN 1
 	ELSE 0 
 end AS connected_to_REVEAL
-FROM user_group ug
+FROM users_existing ug
 left join uc_seq us
 ON ug.id=us.user_id
 ), user_connected_to_FL_REVEAL_prelim2 AS (

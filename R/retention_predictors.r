@@ -9,6 +9,8 @@
 #' the users' first platform action. (Numeric, measured in minutes.)
 #' @param maxTime The last moment to count platform actions, relative to
 #' the users' first platform action. (Numeric, measured in minutes.)
+#' @param rundate A dateid of the form yyyymmdd (numeric). All dates after the
+#' rundate will be filtered out.
 #' @param con Database connection to use for query.
 #' @return A data frame of the form (user_id, platform_action_category,
 #' percentage).
@@ -18,6 +20,11 @@ calculatePADist <- function(users = NULL
                             , minTime = 0
                             , maxTime = 60
                             , agg = F
+                            , rundate = as.numeric(
+                                          gsub(pattern = "-"
+                                               , replacement = ""
+                                               , x = Sys.Date())
+                                        )
                             , con = redshift_connection$con){
   if(length(users)==1){
     stop("'users' must be either NULL or a group of at least 2 users")
@@ -33,9 +40,14 @@ calculatePADist <- function(users = NULL
         , ')'
       )
   }
+  runDateQuery <- paste0('SELECT id as date_id FROM date_dim where id='
+                         , rundate)
   distQuery <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                        , replacement = userGroupQuery
                          , x = query_pa_dist_sub)
+  distQuery <- gsub(pattern = 'xyz_runDateQuery_xyz'
+                    , replacement = runDateQuery
+                    , x = distQuery)
   distQuery <- gsub(pattern = 'xyz_minTime_xyz'
                        , replacement = minTime
                          , x = distQuery)

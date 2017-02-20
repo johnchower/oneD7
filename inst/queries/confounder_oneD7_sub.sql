@@ -1,12 +1,26 @@
-WITH user_group AS(
+WITH 
+user_group AS(
   xyz_userGroupQuery_xyz
-), user_sessiondate AS(
+), 
+run_date AS (
+  xyz_runDateQuery_xyz
+),
+users_existing AS (
+SELECT DISTINCT ug.id
+FROM user_group ug
+left join public.user_platform_action_facts upaf
+ON upaf.user_id=ug.id
+WHERE upaf.platform_action='Account Created'
+AND upaf.date_id <= (SELECT date_id FROM run_date)
+),
+user_sessiondate AS(
 SELECT sdf.user_id AS user_id
 	, dd.sql_date_stamp AS session_date
 FROM session_duration_fact sdf
 left join date_dim dd
 ON dd.id=sdf.date_id
-WHERE sdf.user_id IN (SELECT id FROM user_group)
+WHERE sdf.user_id IN (SELECT id FROM users_existing)
+AND dd.id <= (SELECT date_id FROM run_date)
 ), user_minsessiondate AS(
 SELECT user_id
 	, min(session_date) AS min_session_date
@@ -42,7 +56,7 @@ SELECT ug.id AS user_id
 		THEN 1
 	ELSE 0
 	end) AS oneD7
-FROM user_group ug
+FROM users_existing ug
 left join user_1D7_prelim2 uop
 ON ug.id=uop.user_id
 )

@@ -1,6 +1,19 @@
-WITH user_group AS(
+WITH 
+user_group AS(
   xyz_userGroupQuery_xyz
-), user_pa_datetime AS(
+), 
+run_date AS (
+  xyz_runDateQuery_xyz
+),
+users_existing AS (
+SELECT DISTINCT ug.id
+FROM user_group ug
+left join public.user_platform_action_facts upaf
+ON upaf.user_id=ug.id
+WHERE upaf.platform_action='Account Created'
+AND upaf.date_id <= (SELECT date_id FROM run_date)
+),
+user_pa_datetime AS(
 SELECT upaf.user_id
 	, upaf.platform_action
 	, to_timestamp(
@@ -14,7 +27,7 @@ left join date_dim dd
 ON upaf.date_id=dd.id
 left join time_dim td
 ON upaf.time_id=td.id
-WHERE upaf.user_id IN (SELECT id FROM user_group)
+WHERE upaf.user_id IN (SELECT id FROM users_existing)
 ), user_min_datetime AS(
 SELECT upd.user_id
 	, min(upd.date_time) AS first_action

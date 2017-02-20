@@ -6,6 +6,7 @@
 variables.}
 \usage{
 getConfounders(users = NULL, queryList, wide = F,
+  rundate = as.numeric(gsub(pattern = "-", replacement = "", x = Sys.Date())),
   con = redshift_connection$con)
 }
 \arguments{
@@ -17,6 +18,9 @@ data.frame.}
 
 \item{wide}{Should results be returned in wide format (T) or long format
 (F)?}
+
+\item{rundate}{A dateid of the form yyyymmdd (numeric). All dates after the
+rundate will be filtered out.}
 
 \item{con}{The database connection to run the queryList against.}
 }
