@@ -8,7 +8,15 @@ devtools::load_all()
 # Should we cluster everyone or, just N users?
 N <- 2000 #Number of users
 take_sample <- F
-rundate <- 20170213
+rundate <- 20170220
+cluster_variables <- c('Connect'
+                        ,'Consume'
+                        ,'Create'
+                        ,'Feed'
+                        ,'Invite'
+                        ,'Other actions'
+                        ,'Space'
+                        ,'To-do')
 
 ########### RUN ONCE #############
 # Connect to Redshift and create temporary tables user_flash_cat 
@@ -41,21 +49,13 @@ allUserPADist <- allUserPADist %>%
 #                              , clustVariables = cluster_variables)
 # clusterEndTime <- Sys.time()
 # clusterEndTime - clusterStartTime
-# save(allUserClust, file = '/Users/johnhower/Data/allUserClust_20170213.rda')
- 
+# save(allUserClust, file = '/Users/johnhower/Data/allUserClust_20170220.rda')
+
 #### Load the dataset from an .rda file #####
-load(file = '/Users/johnhower/Data/allUserClust_20170213.rda')
+load(file = '/Users/johnhower/Data/allUserClust_20170220.rda')
 
 ############ SET PARAMETERS, RUN MANY TIMES ###########
-K <- 2
-cluster_variables <- c('Connect'
-                        ,'Consume'
-                        ,'Create'
-                        ,'Feed'
-                        ,'Invite'
-                        ,'Other actions'
-                        ,'Space'
-                        ,'To-do')
+K <- 6
 query_list <- list(oneD7::query_confounder_use_case_sub
                    , oneD7::query_confounder_oneD7_sub
                    , oneD7::query_confounder_FL_REVEAL_sub
@@ -102,19 +102,36 @@ allUserConfoundersWide <- tidyr::spread(data = allUserConfounders
                                         , key = 'variable'
                                         , value = 'value')
 
-# How many users don't have a cluster?
-bnInputData %>%
-  filter(!is.na(cluster)) %>%
-  {.$user_id} %>%
-  unique %>%
-  length
-
 # Calculate bayesian network for week 10
-W <- 10
-bnInputData %>%
+W <- 20
+bnInputDataClean <- bnInputData %>%
   filter(relative_session_week==W) %>%
-  select(-relative_session_week) %>%
-  {bnlearn::hc(.)} %>%
-  plot
+  {.[complete.cases(.),]} %>%
+  select(-relative_session_week
+         , -user_id) %>%
+  lapply(FUN=as.factor) %>%
+  as.data.frame %>%
+  select(active
+    , oned7
+    , cluster
+    , account_type
+    , connected_to_fl
+    , connected_to_reveal
+  )
+bnStructure <- bnlearn::hc(bnInputDataClean)
+### Make necessary changes to structure ###
+reverse.arc(x = bnStructure, from = 'oned7', to = 'active')
+reverse.arc(x = bnStructure, from = 'cluster', to = 'active')
+reverse.arc(x = bnStructure, from = 'account_type', to = 'active')
+reverse.arc(x = bnStructure, from = 'cluster', to = 'oned7')
+# reverse.arc(x = bnStructure, from = 'oned7', to = 'active')
+# reverse.arc(x = bnStructure, from = 'oned7', to = 'active')
+# reverse.arc(x = bnStructure, from = 'oned7', to = 'active')
+# reverse.arc(x = bnStructure, from = 'oned7', to = 'active')
+# reverse.arc(x = bnStructure, from = 'oned7', to = 'active')
+plot(bnStructure)
+#######
+bnFit <- bn.fit(bnStructure, bnInputDataClean)
+bnFit$active$prob
 
 plot(cut(x = as.dendrogram(allUserClust), h = 8200))

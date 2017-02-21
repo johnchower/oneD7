@@ -131,7 +131,7 @@ pConfounder <- allUserConfoundersWide %>%
            , connected_to_cedar
            , connected_to_reveal
            , connected_to_fl
-           , oned7 
+           # , oned7 
            , account_type) %>%
   summarise(probability=length(unique(user_id))/mean(total_users))
 
@@ -152,7 +152,8 @@ retentionData2 <-  retentionData %>%
                                 , 'connected_to_cedar'
                                 , 'connected_to_reveal'
                                 , 'connected_to_fl'
-                                , 'oned7')) %>%
+                               # , 'oned7'
+                                )) %>%
   group_by(relative_session_week, cluster) %>%
   summarise(pct_active=sum(pct_active*probability))
 

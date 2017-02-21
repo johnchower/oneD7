@@ -239,4 +239,28 @@ test_that("clusterUsers returns results with subsets and extra variables",{
              , 'hclust')
 })
 
+test_that("clusterUsers doesn't drop any user ids",{
+  # Set paramaters
+  K <- 6
+  N <- 1000 #Number of users
+  cluster_variables <- c('Connect'
+                          ,'Consume'
+                          ,'Create'
+                          ,'Feed'
+                          ,'Invite'
+                          ,'Other actions'
+                          ,'Space'
+                          ,'To-do')
+  allUserPADist <- calculatePADist(maxTime = 60*24) 
+  # Select a subset of users to perform the analysis on
+  set.seed(seed = 2)
+  userSet <- sample(unique(allUserPADist$user_id), size = N, replace = F)
+  allUserPADist <- allUserPADist %>%
+    filter(user_id %in% userSet)
+  allUserClust <- clusterUsers(allUserPADist
+                               , clustVariables = cluster_variables)
+  object_to_test <- as.numeric(allUserClust$labels)
+  expect_equal(object_to_test[order(object_to_test)]
+               , userSet[order(userSet)] )
+})
 RPostgreSQL::dbDisconnect(conn = redshift_connection$con)
