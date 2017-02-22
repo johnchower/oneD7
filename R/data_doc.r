@@ -54,6 +54,11 @@
 #' @format A length-one character vector.
 "query_confounder_oneD7_sub"
 
+#' A string containing the query to calculate a users' first champion.
+#' 
+#' @format A length-one character vector.
+"query_confounder_first_champ_sub"
+
 #' A string containing the query to calculate the weeks (relative to signup
 #' date) that each user was active.
 #' 
