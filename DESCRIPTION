@@ -18,5 +18,6 @@ Imports: RPostgreSQL,
     plyr,
     fastcluster
 Suggests: testthat,
-    glootility
+    glootility,
+    broom
 Remotes: johnchower/glootility
