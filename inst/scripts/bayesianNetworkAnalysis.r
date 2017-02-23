@@ -1,3 +1,4 @@
+library(oneD7)
 library(broom)
 library(bnlearn)
 library(tidyr)
@@ -64,7 +65,7 @@ allUserPADist <- allUserPADist %>%
 #### Load the dataset from an .rda file #####
 
 ############ SET PARAMETERS, RUN MANY TIMES ###########
-K <- 6
+K <- 8
 query_list <- list(oneD7::query_confounder_use_case_sub
                    , oneD7::query_confounder_oneD7_sub
                    # , oneD7::query_confounder_FL_REVEAL_sub
