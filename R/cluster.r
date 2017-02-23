@@ -77,6 +77,15 @@ clusterUsers <- function(paDistData = NULL
   if(!extraDataExists & !paDistDataExists){
     stop("Must specify at least one of paDistData or extraData")
   }
+  if(extraDataExists){
+    extraUsers <- unique(extraData$user_id)
+  } else {extraUsers <- NULL}
+  if(paDistDataExists){
+    paDistUsers <- unique(paDistData$user_id)
+  } else {paDistUsers <- NULL}
+  inUserSet <- unique(c(extraUsers, paDistUsers))
+  inUsers <- data.frame(user_id = inUserSet
+                        , stringsAsFactors = F)
   if(extraDataExists & clustVariablesExist){
     extraData <- dplyr::filter(extraData
                                 , variable %in% clustVariables)
@@ -103,6 +112,8 @@ clusterUsers <- function(paDistData = NULL
     paDistDataWide <- spreadPADistData(paDistData)
     clusterDataWide <- paDistDataWide
   }
+  clusterDataWide <- left_join(inUsers, clusterDataWide, by = 'user_id')
+  clusterDataWide[is.na(clusterDataWide)] <- 0
   rownames(clusterDataWide) <- clusterDataWide$user_id
   clusterDataWide <- dplyr::select(clusterDataWide, -user_id)
   distMatrix <- do.call(dist, c(list(x=clusterDataWide), distParams))

@@ -7,20 +7,33 @@
 #' data.frame. 
 #' @param wide Should results be returned in wide format (T) or long format
 #' (F)?
+#' @param runDate A dateid of the form yyyymmdd (numeric). All dates after the
+#' runDate will be filtered out.
 #' @param con The database connection to run the queryList against.
 #' @return A data.frame of the form (user_id, variable, value). 
 #' @importFrom RPostgreSQL dbGetQuery
 #' @importFrom plyr ldply
 #' @importFrom tidyr gather
+#' @export
 getConfounders <- function(users = NULL
                            , queryList
                            , wide = F
+                           , runDate = as.numeric(
+                                         gsub(pattern = "-" 
+                                              , replacement = "" 
+                                              , x = Sys.Date())
+                                       )
                            , con = redshift_connection$con){
   if(length(users)==1){
     stop("'users' must be either NULL or a group of at least 2 users")
   } else if(is.null(users)){
     userGroupQuery <- 
-      'SELECT DISTINCT id FROM user_dimensions WHERE email IS NOT NULL'
+      paste0("SELECT DISTINCT ud.id "
+             , "FROM user_dimensions ud "
+             , "LEFT JOIN user_platform_action_facts upaf "
+             , "on upaf.user_id=ud.id "
+             , "WHERE ud.email IS NOT NULL "
+             , "AND upaf.platform_action=\'Account Created\' ")
   } else {  
     usersChar <- paste(users, collapse = ',') 
     userGroupQuery <- 
@@ -30,12 +43,17 @@ getConfounders <- function(users = NULL
         , ')'
       )
   }
+  runDateQuery <- paste0('SELECT id as date_id FROM date_dim where id='
+                         , runDate)
   resultList <- 
     lapply(X = queryList
            , FUN = function(query){
-             queryToRun <- gsub(pattern = 'xyz_userGroupQuery_xyz'
+             queryToRun0 <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                                 , replacement = userGroupQuery
                                 , x = query)
+             queryToRun <- gsub(pattern = 'xyz_runDateQuery_xyz'
+                                , replacement = runDateQuery
+                                , x = queryToRun0)
              resultsWide <- RPostgreSQL::dbGetQuery(conn = con
                                      , statement = queryToRun)
              tidyr::gather(resultsWide

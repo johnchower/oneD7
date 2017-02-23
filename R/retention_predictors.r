@@ -9,6 +9,8 @@
 #' the users' first platform action. (Numeric, measured in minutes.)
 #' @param maxTime The last moment to count platform actions, relative to
 #' the users' first platform action. (Numeric, measured in minutes.)
+#' @param runDate A dateid of the form yyyymmdd (numeric). All dates after the
+#' runDate will be filtered out.
 #' @param con Database connection to use for query.
 #' @return A data frame of the form (user_id, platform_action_category,
 #' percentage).
@@ -18,12 +20,23 @@ calculatePADist <- function(users = NULL
                             , minTime = 0
                             , maxTime = 60
                             , agg = F
+                            , runDate = as.numeric(
+                                          gsub(pattern = "-"
+                                               , replacement = ""
+                                               , x = Sys.Date())
+                                        )
                             , con = redshift_connection$con){
   if(length(users)==1){
     stop("'users' must be either NULL or a group of at least 2 users")
   } else if(is.null(users)){
     userGroupQuery <- 
-      'SELECT DISTINCT id FROM user_dimensions WHERE email IS NOT NULL'
+      paste0("SELECT DISTINCT ud.id "
+             , "FROM user_dimensions ud "
+             , "LEFT JOIN user_platform_action_facts upaf "
+             , "on upaf.user_id=ud.id "
+             , "WHERE ud.email IS NOT NULL "
+             , "AND upaf.platform_action=\'Account Created\' ")
+
   } else {  
     usersChar <- paste(users, collapse = ',') 
     userGroupQuery <- 
@@ -33,9 +46,14 @@ calculatePADist <- function(users = NULL
         , ')'
       )
   }
+  runDateQuery <- paste0('SELECT id as date_id FROM date_dim where id='
+                         , runDate)
   distQuery <- gsub(pattern = 'xyz_userGroupQuery_xyz'
                        , replacement = userGroupQuery
                          , x = query_pa_dist_sub)
+  distQuery <- gsub(pattern = 'xyz_runDateQuery_xyz'
+                    , replacement = runDateQuery
+                    , x = distQuery)
   distQuery <- gsub(pattern = 'xyz_minTime_xyz'
                        , replacement = minTime
                          , x = distQuery)

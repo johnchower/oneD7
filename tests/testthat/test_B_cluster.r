@@ -1,3 +1,5 @@
+library(dplyr)
+
 glootility::connect_to_redshift()
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_pa_flash_cat)
@@ -27,7 +29,19 @@ test_that("spreadPADistData returns correct columns",{
 })
 
 ############### Test clusterUsers ###############
-userSet <- c(1,20, 3000, 5,99)
+N <- 1000
+set.seed(1)
+userSet <- RPostgreSQL::dbGetQuery(conn = redshift_connection$con
+                                   , statement =
+      paste0("SELECT DISTINCT ud.id "
+             , "FROM user_dimensions ud "
+             , "LEFT JOIN user_platform_action_facts upaf "
+             , "on upaf.user_id=ud.id "
+             , "WHERE ud.email IS NOT NULL "
+             , "AND upaf.platform_action=\'Account Created\' ")
+  ) %>%
+  {.$id} %>%
+  sample(size = N)
 userSetChar <- as.character(userSet)
 x <- calculatePADist(users= userSet
                      , maxTime = 60
@@ -45,16 +59,28 @@ test_that("clusterUsers returns results",{
 
 
 ############### Test clustApply ###############
-w <- clustApply(z, height=.24, FUN=mean)
+userSet <- 1:16
+userSetChar <- as.character(userSet)
+x <- data.frame(
+  user_id=userSet
+  , flash_report_category = c(rep("Space", times = 8)
+                              , rep("Connect", times = 8) )
+  , count_platform_actions = rep(1, times = 16)
+  , total_platform_actions = rep(1, times = 16)
+  , pct_platform_actions = rep(1, times = 16)
+  , stringsAsFactors = F
+)
+z <- clusterUsers(x)
+w <- clustApply(z, height=2, FUN=mean)
 expected_result_w <- 
   list(
     list(
       varCombo=c(cluster=1)
-      , result = 3100/3
+      , result = 4.5
     )
     , list(
       varCombo=c(cluster=2)
-      , result = 25/2
+      , result = 12.5
     )
   )
 names(expected_result_w) <- as.character(c(1,2))
@@ -67,35 +93,55 @@ varCombos_expected_result_w <- expected_result_w %>%
 extraGroupings_test <- 
   data.frame(
     user_id = userSet
-    , var1 = c(1,1,1,2,2)
-    , var2 = c(1,2,1,1,1)
+    , var1 = rep(c(rep(1, times = 4)
+                   , rep(2, times = 4))
+                 , times = 2)
+    , var2 = rep(c(rep(1, times = 2)
+                   , rep(2, times = 2))
+                 , times = 4)
     , stringsAsFactors=F
   )  
 w2 <- clustApply(z
-                , height=.24
+                , height=2
                 , extraGroupings = extraGroupings_test
                 , FUN=mean)
 expected_result_w2 <- 
   list(
     list(
       varCombo=c(cluster=1, var1=1, var2=1)
-      , result = 3101/2
+      , result = 1.5
     )
     , list(
-      varCombo=c(cluster=2, var1=1, var2=2)
-      , result = 20
-    )
-    , list(
-      varCombo=c(cluster=2, var1=2, var2=1)
-      , result = 5
+      varCombo=c(cluster=1, var1=1, var2=2)
+      , result = 3.5
     )
     , list(
       varCombo=c(cluster=1, var1=2, var2=1)
-      , result = 99
+      , result = 5.5
+    )
+    , list(
+      varCombo=c(cluster=1, var1=2, var2=2)
+      , result = 7.5
+    )
+    , list(
+      varCombo=c(cluster=2, var1=1, var2=1)
+      , result = 9.5
+    )
+    , list(
+      varCombo=c(cluster=2, var1=1, var2=2)
+      , result = 11.5
+    )
+    , list(
+      varCombo=c(cluster=2, var1=2, var2=1)
+      , result = 13.5
+    )
+    , list(
+      varCombo=c(cluster=2, var1=2, var2=2)
+      , result = 15.5
     )
   )
 names(expected_result_w2) <- 
-  c('1.1.1','2.1.2','2.2.1','1.2.1')
+  c('1.1.1','1.1.2','1.2.1','1.2.2','2.1.1','2.1.2','2.2.1','2.2.2')
 varCombos_w2 <- w2 %>%
   sapply(function(x)x$varCombo) %>%
   as.data.frame
@@ -154,7 +200,6 @@ test_that("clustApply returns correct varCombos with extra groupings",{
   expect_is(object_to_test, 'list')
 })
 
-
 ############### Test clusterUsers ###############
 extraData_test <- data.frame(user_id = rep(userSet, times = 2)
                              , variable = 
@@ -164,7 +209,7 @@ extraData_test <- data.frame(user_id = rep(userSet, times = 2)
                              , value = 1:(2*length(userSet))
                              , stringsAsFactors = F)
 clustVariables_test_a <- c('a')
-clustVariables_test_b <- c('Connect')
+clustVariables_test_b <- c('Invite')
 clustVariables_test_c <- desired_colnames
 
 test_that("clusterUsers returns results with subsets and extra variables",{
@@ -194,4 +239,28 @@ test_that("clusterUsers returns results with subsets and extra variables",{
              , 'hclust')
 })
 
+test_that("clusterUsers doesn't drop any user ids",{
+  # Set paramaters
+  K <- 6
+  N <- 1000 #Number of users
+  cluster_variables <- c('Connect'
+                          ,'Consume'
+                          ,'Create'
+                          ,'Feed'
+                          ,'Invite'
+                          ,'Other actions'
+                          ,'Space'
+                          ,'To-do')
+  allUserPADist <- calculatePADist(maxTime = 60*24) 
+  # Select a subset of users to perform the analysis on
+  set.seed(seed = 2)
+  userSet <- sample(unique(allUserPADist$user_id), size = N, replace = F)
+  allUserPADist <- allUserPADist %>%
+    filter(user_id %in% userSet)
+  allUserClust <- clusterUsers(allUserPADist
+                               , clustVariables = cluster_variables)
+  object_to_test <- as.numeric(allUserClust$labels)
+  expect_equal(object_to_test[order(object_to_test)]
+               , userSet[order(userSet)] )
+})
 RPostgreSQL::dbDisconnect(conn = redshift_connection$con)
