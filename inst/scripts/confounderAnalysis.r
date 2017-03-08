@@ -2,6 +2,7 @@ library(tidyr)
 library(ggplot2)
 library(dplyr)
 library(plotly)
+# library(oneD7)
 devtools::load_all()
 
 ########### RUN ONCE #############
@@ -13,7 +14,7 @@ RPostgreSQL::dbGetQuery(conn = redshift_connection$con
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_user_flash_cat)
 # Set rundate
-rundate <- 20170213
+rundate <- 20170221
 
 # Calculate the platform action distribution for all users, in their first hour
 # on the platform.
@@ -34,7 +35,6 @@ allUserPADist <- allUserPADist %>%
 query_list <- list(oneD7::query_confounder_use_case_sub
                    , oneD7::query_confounder_oneD7_sub
                    , oneD7::query_confounder_FL_REVEAL_sub
-                   # , oneD7::query_confounder_belongs_to_cohort_sub
                    )
 
 # Cluster all users according to their hour-1 platform action distribution.
@@ -44,9 +44,9 @@ query_list <- list(oneD7::query_confounder_use_case_sub
 #                              , clustVariables = cluster_variables)
 # clusterEndTime <- Sys.time()
 # clusterEndTime - clusterStartTime
-# save(allUserClust, file = '/Users/johnhower/Data/allUserClust_20170201.rda')
+# save(allUserClust, file = '/Users/johnhower/Data/allUserClust_20170221.rda')
 #### Load the dataset from an .rda file #####
-# load(file = '/Users/johnhower/Data/allUserClust_20170213.rda')
+load(file = '/Users/johnhower/Data/allUserClust_20170221.rda')
 
 # Get values of each confounding variable for each user.
 allUserConfounders <- oneD7::getConfounders(queryList = query_list
@@ -54,7 +54,7 @@ allUserConfounders <- oneD7::getConfounders(queryList = query_list
   filter(user_id %in% userSet)
 
 ############ SET PARAMETERS, RUN MANY TIMES ###########
-K <- 6
+K <- 7
 cluster_variables <- c('Connect'
                         ,'Consume'
                         ,'Create'

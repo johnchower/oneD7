@@ -1,3 +1,4 @@
+library(dplyr)
 glootility::connect_to_redshift()
 RPostgreSQL::dbGetQuery(conn = redshift_connection$con
                         , statement = glootility::query_pa_flash_cat)
@@ -48,9 +49,16 @@ queryList_test <-  list(oneD7::query_confounder_use_case_sub
                         , oneD7::query_confounder_FL_REVEAL_sub
                         , oneD7::query_confounder_belongs_to_cohort_sub
                         , oneD7::query_confounder_first_champ_sub)
-test_that("getConfounders returns no nulls.",{
+test_that("getConfounders returns no nulls or duplicate rows.",{
   allUserConfounders <- oneD7::getConfounders(queryList = queryList_test
                                    , runDate = 20170201)
+  has_duplicates <- allUserConfounders %>%
+    group_by(user_id, variable) %>%
+    summarise(duplicate_rows = length(unique(value)) - 1) 
+  has_duplicates <- has_duplicates %>%
+    {.$duplicate_rows} %>%
+    {max(.) > 0}
+  expect_true(object = !has_duplicates)
   allUserConfoundersWide <- tidyr::spread(data = allUserConfounders
                                           , key = 'variable'
                                           , value = 'value')
